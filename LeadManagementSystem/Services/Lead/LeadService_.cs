@@ -17,16 +17,16 @@ namespace LeadManagementSystem.Services.Lead
             _context = context;
         }
 
+        // 1. Get Lead Count By Status and Total Count for Current Year
         public async Task<(List<LeadCountByStatusViewModel> LeadCountByStatus, int TotalLeadCount)> GetLeadCountByStatusAndTotalCountAsync()
         {
             var currentYear = DateTime.UtcNow.Year;
 
-            // Get lead count by status, month, and year
             var leadCountByStatus = await _context.leads
-                .Where(l => l.DateTime.Year == currentYear)  // Ensure 'DateTime' exists in your entity
+                .Where(l => l.DateTime.Year == currentYear)
                 .GroupBy(l => new
                 {
-                    l.Status.Name,  // Ensure 'Status' is a navigation property
+                    l.Status.Name,
                     l.DateTime.Month,
                     l.DateTime.Year
                 })
@@ -41,23 +41,20 @@ namespace LeadManagementSystem.Services.Lead
                 .ThenBy(r => r.Month)
                 .ToListAsync();
 
-            // Get the total count of leads for the current year
             var totalLeadCount = await _context.leads
                 .Where(l => l.DateTime.Year == currentYear)
                 .CountAsync();
 
-            // Return both the lead count by status and the total lead count
             return (leadCountByStatus, totalLeadCount);
         }
 
-
+        // 2. Get Daily Lead Status Summary for Current Month
         public async Task<(List<DailyLeadStatusSummaryViewModel> DailySummary, int TotalLeadCount)> GetDailyLeadStatusSummaryAsync()
         {
             var now = DateTime.UtcNow;
             var currentYear = now.Year;
             var currentMonth = now.Month;
 
-            // Daily grouped summary by status
             var summary = await _context.leads
                 .Where(l => l.DateTime.Year == currentYear && l.DateTime.Month == currentMonth)
                 .GroupBy(l => new
@@ -80,7 +77,6 @@ namespace LeadManagementSystem.Services.Lead
                 .ThenBy(r => r.Day)
                 .ToListAsync();
 
-            // Total leads for the current month
             var totalLeadCount = await _context.leads
                 .Where(l => l.DateTime.Year == currentYear && l.DateTime.Month == currentMonth)
                 .CountAsync();
@@ -88,8 +84,7 @@ namespace LeadManagementSystem.Services.Lead
             return (summary, totalLeadCount);
         }
 
-
-
+        // 3. Get Monthly Lead Status Summary for Current Year
         public async Task<List<MonthlyLeadStatusSummaryViewModel>> GetMonthlyLeadStatusSummaryAsync()
         {
             var currentYear = DateTime.UtcNow.Year;
@@ -116,7 +111,7 @@ namespace LeadManagementSystem.Services.Lead
             return result;
         }
 
-
+        // 4. Get Lead Count By Source and Status for Current Year
         public async Task<List<LeadCountBySourceAndStatusViewModel>> GetLeadCountBySourceAndStatusAsync()
         {
             var currentYear = DateTime.UtcNow.Year;
@@ -140,6 +135,7 @@ namespace LeadManagementSystem.Services.Lead
             return leadCountBySourceAndStatus;
         }
 
+        // 5. Get Lead Count By Source and Status for a Given Period (Year & Month)
         public async Task<List<LeadCountBySourceAndStatusByYearViewModel>> GetLeadCountBySourceAndStatusByPeriodAsync(int startYear, int startMonth, int endYear, int endMonth)
         {
             var leadCountBySourceAndStatus = await _context.leads
@@ -170,10 +166,69 @@ namespace LeadManagementSystem.Services.Lead
         }
 
 
+        // Service Method to Get Lead Count by Source, Branch, and Month for the Current Year
+        public async Task<List<LeadCountBySourceBranchMonthViewModel>> GetLeadCountBySourceBranchMonthAsync()
+        {
+            var currentYear = DateTime.UtcNow.Year;
+
+            // Fetching data using LINQ instead of raw SQL
+            var result = await _context.leads
+                .Where(l => l.DateTime.Year == currentYear)
+                .GroupBy(l => new
+                {
+                    l.LeadSource.Name,
+                    l.Branch.BranchName,
+                    Month = l.DateTime.Month
+                })
+                .Select(g => new LeadCountBySourceBranchMonthViewModel
+                {
+                    SourceName = g.Key.Name,
+                    BranchName = g.Key.BranchName,
+                    LeadCount = g.Count(),
+                    Year = currentYear,
+                    Month = g.Key.Month
+                })
+                .OrderBy(r => r.BranchName)
+                .ThenBy(r => r.Month)
+                .ThenBy(r => r.SourceName)
+                .ToListAsync();
+
+            return result;
+        }
 
 
+        // Service Method to Get Daily Lead Count by Source, Branch, and Day for Current Month
+        public async Task<List<DailyLeadCountBySourceBranchViewModel>> GetDailyLeadCountBySourceAndBranchCurrentMonthAsync()
+        {
+            var currentYear = DateTime.UtcNow.Year;
+            var currentMonth = DateTime.UtcNow.Month;
+
+            // Fetching data using LINQ instead of raw SQL
+            var result = await _context.leads
+                .Where(l => l.DateTime.Year == currentYear && l.DateTime.Month == currentMonth)
+                .GroupBy(l => new
+                {
+                    l.LeadSource.Name,
+                    l.Branch.BranchName,
+                    Day = l.DateTime.Day
+                })
+                .Select(g => new DailyLeadCountBySourceBranchViewModel
+                {
+                    SourceName = g.Key.Name,
+                    BranchName = g.Key.BranchName,
+                    LeadCount = g.Count(),
+                    Year = currentYear,
+                    Month = currentMonth,
+                    Day = g.Key.Day
+                })
+                .OrderBy(r => r.BranchName)
+                .ThenBy(r => r.Day)
+                .ThenBy(r => r.SourceName)
+                .ToListAsync();
+
+            return result;
+        }
 
     }
-
 }
 

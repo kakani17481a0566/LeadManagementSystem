@@ -142,5 +142,42 @@ namespace LeadManagementSystem.Controllers
                 return BadRequest("Invalid periodType. Please provide either 'CurrentYear' or 'CurrentMonth'.");
             }
         }
+
+
+        // GET: api/LeadSummary/LeadCountBySourceBranchMonth
+        [HttpGet("LeadCountBySourceBranchMonth")]
+        public async Task<ActionResult<List<LeadCountBySourceBranchMonthViewModel>>> GetLeadCountBySourceBranchMonth()
+        {
+            _logger.LogInformation("Getting lead count by source, branch, and month for the current year...");
+
+            var result = await _leadService.GetLeadCountBySourceBranchMonthAsync();
+
+            if (result == null || result.Count == 0)
+            {
+                return NotFound("No data found for lead count by source, branch, and month.");
+            }
+
+            return Ok(result);
+
+
+        }
+
+
+        // GET: api/LeadSummary/DailyLeadCountBySourceAndBranchCurrentMonth
+        [HttpGet("DailyLeadCountBySourceAndBranchCurrentMonth")]
+        public async Task<ActionResult<List<DailyLeadCountBySourceBranchViewModel>>> GetDailyLeadCountBySourceAndBranchCurrentMonth()
+        {
+            _logger.LogInformation("Getting daily lead count by source, branch, and day for the current month...");
+
+            var result = await _leadService.GetDailyLeadCountBySourceAndBranchCurrentMonthAsync();
+
+            if (result == null || result.Count == 0)
+            {
+                return NotFound("No data found for daily lead count by source, branch, and day for the current month.");
+            }
+
+            return Ok(result);
+        }
     }
+
 }

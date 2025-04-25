@@ -64,23 +64,27 @@ namespace LeadManagementSystem.Services.User
         }
 
         // Implement the method to create a user
-        public async Task<bool> CreateUserAsync(UserViewModel userViewModel)
+        public async Task<UserModel> CreateUserAsync(UserCreateViewModel userCreateViewModel)
         {
             var user = new UserModel
             {
-                FirstName = userViewModel.FirstName,
-                LastName = userViewModel.LastName,
-                Email = userViewModel.Email,
-                Phone = userViewModel.Phone,
-                LoginId = userViewModel.LoginId,
-                Password = userViewModel.Password, // Plain-text password
-                RoleId = userViewModel.RoleId
+                FirstName = userCreateViewModel.FirstName,
+                LastName = userCreateViewModel.LastName,
+                Email = userCreateViewModel.Email,
+                Phone = userCreateViewModel.Phone,
+                LoginId = userCreateViewModel.LoginId,
+                Password = userCreateViewModel.Password, // Plain-text password
+                RoleId = userCreateViewModel.RoleId
             };
 
             _context.Users.Add(user);  // Add user to context
             await _context.SaveChangesAsync();  // Save changes to database
-            return true;
+
+            // Return the created user with the auto-generated ID
+            return user;
         }
+
+
 
         // Update an existing user
         public async Task<bool> UpdateUserAsync(int id, UserViewModel userViewModel)

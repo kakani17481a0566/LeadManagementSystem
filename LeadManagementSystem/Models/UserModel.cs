@@ -2,7 +2,7 @@
 
 namespace LeadManagementSystem.Models
 {
-    [Table("users")]  // Explicitly set the table name to lowercase 'users'
+    [Table("users")] 
     public class UserModel
     {
         [Column("id")]

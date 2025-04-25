@@ -53,7 +53,7 @@ namespace LeadManagementSystem.Controllers.User
 
         // Create a new user
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] UserViewModel user)
+        public async Task<IActionResult> CreateUser([FromBody] UserCreateViewModel user)
         {
             if (user == null)
             {
@@ -74,15 +74,19 @@ namespace LeadManagementSystem.Controllers.User
             }
 
             _logger.LogInformation("Creating user: {LoginId}", user.LoginId);
-            var success = await _userService.CreateUserAsync(user);
 
-            if (!success)
+            // Call the service to create the user and get the newly created user
+            var createdUser = await _userService.CreateUserAsync(user);
+
+            if (createdUser == null)
             {
                 return BadRequest("Failed to create user.");
             }
 
-            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
+            // Return the newly created user with its auto-generated ID
+            return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
         }
+
 
         // Update an existing user
         [HttpPut("{id}")]

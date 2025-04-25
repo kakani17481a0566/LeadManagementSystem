@@ -229,6 +229,27 @@ namespace LeadManagementSystem.Services.Lead
             return result;
         }
 
+
+        // Service Method to Get Lead Count by Branch and Source
+        public async Task<List<LeadCountBySourceAndBranchViewModel>> GetLeadCountBySourceAndBranchAsync()
+        {
+            // Query to get the count of leads per branch and source
+            var result = await _context.leads
+                .Join(_context.branches, l => l.BranchId, b => b.Id, (l, b) => new { l, b })
+                .Join(_context.sources, lb => lb.l.LeadSourceId, s => s.Id, (lb, s) => new { lb, s })
+                .GroupBy(x => new { x.lb.b.BranchName, x.s.Name })
+                .Select(g => new LeadCountBySourceAndBranchViewModel
+                {
+                    BranchName = g.Key.BranchName,
+                    SourceName = g.Key.Name,
+                    LeadCount = g.Count()
+                })
+                .OrderBy(r => r.BranchName) // Order by branch name
+                .ToListAsync();
+
+            return result;
+        }
+
     }
 }
 

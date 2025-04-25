@@ -178,6 +178,23 @@ namespace LeadManagementSystem.Controllers
 
             return Ok(result);
         }
+
+
+        // GET: api/LeadSummary/LeadCountBySourceAndBranch
+        [HttpGet("LeadCountBySourceAndBranch")]
+        public async Task<ActionResult<List<LeadCountBySourceAndBranchViewModel>>> GetLeadCountBySourceAndBranch()
+        {
+            _logger.LogInformation("Getting lead count by source and branch...");
+
+            var result = await _leadService.GetLeadCountBySourceAndBranchAsync();
+
+            if (result == null || result.Count == 0)
+            {
+                return NotFound("No data found for lead count by source and branch.");
+            }
+
+            return Ok(result);
+        }
     }
 
 }

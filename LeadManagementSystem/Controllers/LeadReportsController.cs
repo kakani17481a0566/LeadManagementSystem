@@ -9,24 +9,23 @@ namespace LeadManagementSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class LeadReportsController : ControllerBase
+    public class LeadSummaryController : ControllerBase
     {
         private readonly LeadService_ _leadService;
-        private readonly ILogger<LeadReportsController> _logger;
+        private readonly ILogger<LeadSummaryController> _logger;
 
-        public LeadReportsController(LeadService_ leadService, ILogger<LeadReportsController> logger)
+        public LeadSummaryController(LeadService_ leadService, ILogger<LeadSummaryController> logger)
         {
             _leadService = leadService;
             _logger = logger;
         }
 
-        // GET: api/LeadReports/LeadCountByStatus
-        [HttpGet("LeadCountByStatus")]
+        // GET: api/LeadSummary/LeadCountByStatus
+        [HttpGet("LeadCountByStatusCurrentYearMonth")]
         public async Task<ActionResult<object>> GetLeadCountByStatus()
         {
             _logger.LogInformation("Getting lead count by status and total lead count for the current year...");
 
-            // Destructure the tuple into two variables
             var (leadCountByStatus, totalLeadCount) = await _leadService.GetLeadCountByStatusAndTotalCountAsync();
 
             if (leadCountByStatus == null || leadCountByStatus.Count == 0)
@@ -34,7 +33,6 @@ namespace LeadManagementSystem.Controllers
                 return NotFound("No data found for lead count by status.");
             }
 
-            // Return both the lead count by status and the total lead count
             return Ok(new
             {
                 TotalLeadCount = totalLeadCount,
@@ -42,8 +40,8 @@ namespace LeadManagementSystem.Controllers
             });
         }
 
-        // GET: api/LeadReports/DailyStatusSummary
-        [HttpGet("DailyStatusSummary")]
+        // GET: api/LeadSummary/DailyStatusSummary
+        [HttpGet("DailyStatusSummaryCurrentMonthDay")]
         public async Task<ActionResult<object>> GetDailyLeadStatusSummary()
         {
             _logger.LogInformation("Getting daily lead status summary and total lead count for the current month...");
@@ -62,25 +60,8 @@ namespace LeadManagementSystem.Controllers
             });
         }
 
-
-        // GET: api/LeadReports/MonthlyStatusSummary
-        [HttpGet("MonthlyStatusSummary")]
-        public async Task<ActionResult<List<MonthlyLeadStatusSummaryViewModel>>> GetMonthlyLeadStatusSummary()
-        {
-            _logger.LogInformation("Getting monthly lead status summary for the current year...");
-
-            var result = await _leadService.GetMonthlyLeadStatusSummaryAsync();
-
-            if (result == null || result.Count == 0)
-            {
-                return NotFound("No monthly summary data found.");
-            }
-
-            return Ok(result);
-        }
-
-
-        [HttpGet("LeadCountBySourceAndStatus")]
+        // GET: api/LeadSummary/LeadCountBySourceAndStatus
+        [HttpGet("LeadCountBySourceAndStatusCurrentYear")]
         public async Task<ActionResult<List<LeadCountBySourceAndStatusViewModel>>> GetLeadCountBySourceAndStatus()
         {
             _logger.LogInformation("Getting lead count by source and status for the current year...");
@@ -95,23 +76,71 @@ namespace LeadManagementSystem.Controllers
             return Ok(result);
         }
 
-        [HttpGet("LeadCountBySourceAndStatusByYear")]
-        public async Task<ActionResult<List<LeadCountBySourceAndStatusByYearViewModel>>> GetLeadCountBySourceAndStatusByYear([FromQuery] int startYear, [FromQuery] int endYear)
+        // GET: api/LeadSummary/LeadCountBySourceAndStatusByPeriod
+        [HttpGet("LeadCountBySourceAndStatusByPeriod")]
+        public async Task<ActionResult<List<LeadCountBySourceAndStatusByYearViewModel>>> GetLeadCountBySourceAndStatusByPeriod(
+            [FromQuery] int startYear,
+            [FromQuery] int startMonth,
+            [FromQuery] int endYear,
+            [FromQuery] int endMonth)
         {
-            _logger.LogInformation($"Getting lead count by source and status from {startYear} to {endYear}...");
+            _logger.LogInformation($"Getting lead count by source and status from {startYear}-{startMonth} to {endYear}-{endMonth}...");
 
-            var result = await _leadService.GetLeadCountBySourceAndStatusByYearAsync(startYear, endYear);
+            var result = await _leadService.GetLeadCountBySourceAndStatusByPeriodAsync(startYear, startMonth, endYear, endMonth);
 
             if (result == null || result.Count == 0)
             {
-                return NotFound("No data found for lead count by source and status in the specified year range.");
+                return NotFound("No data found for lead count by source and status in the specified period.");
             }
 
             return Ok(result);
         }
 
+        // GET: api/LeadSummary/GetLeadStatusSummary
+        [HttpGet("GetLeadStatusSummaryCurrentYearCurrentMonth")]
+        public async Task<ActionResult<object>> GetLeadStatusSummary([FromQuery] string periodType)
+        {
+            _logger.LogInformation($"Getting lead status summary for period type: {periodType}...");
 
+            if (string.IsNullOrEmpty(periodType))
+            {
+                return BadRequest("The periodType parameter is required.");
+            }
 
+            if (periodType.Equals("CurrentYear", StringComparison.OrdinalIgnoreCase))
+            {
+                var (leadCountByStatus, totalLeadCount) = await _leadService.GetLeadCountByStatusAndTotalCountAsync();
 
+                if (leadCountByStatus == null || leadCountByStatus.Count == 0)
+                {
+                    return NotFound("No data found for lead count by status for the current year.");
+                }
+
+                return Ok(new
+                {
+                    TotalLeadCount = totalLeadCount,
+                    LeadCountByStatus = leadCountByStatus
+                });
+            }
+            else if (periodType.Equals("CurrentMonth", StringComparison.OrdinalIgnoreCase))
+            {
+                var (dailySummary, totalLeadCount) = await _leadService.GetDailyLeadStatusSummaryAsync();
+
+                if (dailySummary == null || dailySummary.Count == 0)
+                {
+                    return NotFound("No daily summary data found for the current month.");
+                }
+
+                return Ok(new
+                {
+                    TotalLeadCount = totalLeadCount,
+                    DailySummary = dailySummary
+                });
+            }
+            else
+            {
+                return BadRequest("Invalid periodType. Please provide either 'CurrentYear' or 'CurrentMonth'.");
+            }
+        }
     }
 }

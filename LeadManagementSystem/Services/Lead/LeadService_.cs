@@ -140,25 +140,30 @@ namespace LeadManagementSystem.Services.Lead
             return leadCountBySourceAndStatus;
         }
 
-        public async Task<List<LeadCountBySourceAndStatusByYearViewModel>> GetLeadCountBySourceAndStatusByYearAsync(int startYear, int endYear)
+        public async Task<List<LeadCountBySourceAndStatusByYearViewModel>> GetLeadCountBySourceAndStatusByPeriodAsync(int startYear, int startMonth, int endYear, int endMonth)
         {
             var leadCountBySourceAndStatus = await _context.leads
-                .Where(l => l.DateTime.Year >= startYear && l.DateTime.Year <= endYear)
+                .Where(l =>
+                    (l.DateTime.Year > startYear || (l.DateTime.Year == startYear && l.DateTime.Month >= startMonth)) &&
+                    (l.DateTime.Year < endYear || (l.DateTime.Year == endYear && l.DateTime.Month <= endMonth)))
                 .GroupBy(l => new
                 {
                     l.Status.Name,
                     SourceName = l.LeadSource.Name,
-                    Year = l.DateTime.Year
+                    Year = l.DateTime.Year,
+                    Month = l.DateTime.Month
                 })
                 .Select(g => new LeadCountBySourceAndStatusByYearViewModel
                 {
                     StatusName = g.Key.Name,
                     SourceName = g.Key.SourceName,
                     LeadCount = g.Count(),
-                    Year = g.Key.Year
+                    Year = g.Key.Year,
+                    Month = g.Key.Month
                 })
                 .OrderBy(r => r.SourceName)
                 .ThenBy(r => r.Year)
+                .ThenBy(r => r.Month)
                 .ToListAsync();
 
             return leadCountBySourceAndStatus;

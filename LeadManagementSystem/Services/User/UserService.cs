@@ -2,9 +2,6 @@
 using LeadManagementSystem.Models;
 using LeadManagementSystem.ViewModel.User;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace LeadManagementSystem.Services.User
 {

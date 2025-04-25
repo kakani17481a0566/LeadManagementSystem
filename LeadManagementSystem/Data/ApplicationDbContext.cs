@@ -1,25 +1,25 @@
-﻿using LeadManagementSystem.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using LeadManagementSystem.Models;
 
 namespace LeadManagementSystem.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
+        {
+        }
 
+        public DbSet<LeadEntity> leads { get; set; }
+        public DbSet<Source> sources { get; set; }
+        public DbSet<Branch> branches { get; set; }
+        public DbSet<School> schools { get; set; }
+        public DbSet<LeadType> lead_types { get; set; }
+        public DbSet<Status> statuses { get; set; }
+        public DbSet<LeadList> lead_lists { get; set; }
         public DbSet<UserModel> Users { get; set; }
         public DbSet<RolesModel> Roles { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            // Define the relationship between UserModel and RolesModel
-            modelBuilder.Entity<UserModel>()
-                .HasOne(u => u.Role)
-                .WithMany(r => r.Users)
-                .HasForeignKey(u => u.RoleId)
-                .OnDelete(DeleteBehavior.Restrict); // You can adjust the delete behavior as needed
-        }
+       
     }
 }

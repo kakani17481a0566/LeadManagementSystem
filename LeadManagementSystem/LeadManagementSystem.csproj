@@ -18,6 +18,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.4" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+    <PackageReference Include="Optivem.Framework.Infrastructure.FluentValidation" Version="1.0.23" />
     <PackageReference Include="Refit" Version="8.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>

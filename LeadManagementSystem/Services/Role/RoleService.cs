@@ -10,7 +10,7 @@ namespace LeadManagementSystem.Services.Role
 {
     public class RoleService : IRoleService
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context; // Database context for accessing the database
 
         public RoleService(ApplicationDbContext context)
         {

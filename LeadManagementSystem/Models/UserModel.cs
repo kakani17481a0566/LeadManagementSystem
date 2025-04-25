@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LeadManagementSystem.Models
 {
-    [Table("users")] 
+    [Table("users")]
     public class UserModel
     {
         [Column("id")]
@@ -31,5 +32,8 @@ namespace LeadManagementSystem.Models
 
         // Navigation property for the Role
         public virtual RolesModel Role { get; set; }
+
+        // Navigation property for Leads (One-to-Many relationship)
+        public ICollection<LeadEntity> Leads { get; set; }
     }
 }

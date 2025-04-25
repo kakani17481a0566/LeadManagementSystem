@@ -2,6 +2,7 @@
 using LeadManagementSystem.Data;
 using LeadManagementSystem.Services.Role;
 using LeadManagementSystem.Services.User;
+using LeadManagementSystem.Services.Lead;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<LeadService>();
+
 
 // Database: Configure PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

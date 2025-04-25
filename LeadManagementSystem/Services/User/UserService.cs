@@ -12,15 +12,23 @@ namespace LeadManagementSystem.Services.User
     {
         private readonly ApplicationDbContext _context;
 
+        // Constructor to inject ApplicationDbContext
         public UserService(ApplicationDbContext context)
         {
             _context = context;
         }
 
+        // Check if a Role exists by ID
+        public async Task<bool> RoleExistsAsync(int roleId)
+        {
+            return await _context.Roles.AnyAsync(r => r.Id == roleId);
+        }
+
+        // Get a list of all users
         public async Task<List<UserViewModel>> GetUsersAsync()
         {
             return await _context.Users
-                .Include(u => u.Role)
+                .Include(u => u.Role)  // Including related Role entity
                 .Select(user => new UserViewModel
                 {
                     Id = user.Id,
@@ -30,15 +38,16 @@ namespace LeadManagementSystem.Services.User
                     Phone = user.Phone,
                     LoginId = user.LoginId,
                     RoleId = user.RoleId,
-                    RoleName = user.Role.Name
+                    RoleName = user.Role.Name  // Mapping Role Name
                 })
-                .ToListAsync();
+                .ToListAsync();  // Asynchronously fetching the list of users
         }
 
+        // Get a specific user by ID
         public async Task<UserViewModel> GetUserByIdAsync(int id)
         {
             return await _context.Users
-                .Include(u => u.Role)
+                .Include(u => u.Role)  // Including related Role entity
                 .Where(u => u.Id == id)
                 .Select(user => new UserViewModel
                 {
@@ -49,11 +58,12 @@ namespace LeadManagementSystem.Services.User
                     Phone = user.Phone,
                     LoginId = user.LoginId,
                     RoleId = user.RoleId,
-                    RoleName = user.Role.Name
+                    RoleName = user.Role.Name  // Mapping Role Name
                 })
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync();  // Fetching the user by ID
         }
 
+        // Implement the method to create a user
         public async Task<bool> CreateUserAsync(UserViewModel userViewModel)
         {
             var user = new UserModel
@@ -63,19 +73,20 @@ namespace LeadManagementSystem.Services.User
                 Email = userViewModel.Email,
                 Phone = userViewModel.Phone,
                 LoginId = userViewModel.LoginId,
-                Password = userViewModel.Password, // Plain text password
+                Password = userViewModel.Password, // Plain-text password
                 RoleId = userViewModel.RoleId
             };
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            _context.Users.Add(user);  // Add user to context
+            await _context.SaveChangesAsync();  // Save changes to database
             return true;
         }
 
+        // Update an existing user
         public async Task<bool> UpdateUserAsync(int id, UserViewModel userViewModel)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null) return false;
+            var user = await _context.Users.FindAsync(id);  // Find user by ID
+            if (user == null) return false;  // If not found, return false
 
             user.FirstName = userViewModel.FirstName;
             user.LastName = userViewModel.LastName;
@@ -85,43 +96,44 @@ namespace LeadManagementSystem.Services.User
 
             if (!string.IsNullOrEmpty(userViewModel.Password))
             {
-                user.Password = userViewModel.Password; // Plain text password
+                user.Password = userViewModel.Password;  // Update password if provided
             }
 
             user.RoleId = userViewModel.RoleId;
 
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync();
+            _context.Users.Update(user);  // Update the user
+            await _context.SaveChangesAsync();  // Save changes
             return true;
         }
 
+        // Delete a user by ID
         public async Task<bool> DeleteUserAsync(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null) return false;
+            var user = await _context.Users.FindAsync(id);  // Find user by ID
+            if (user == null) return false;  // If not found, return false
 
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+            _context.Users.Remove(user);  // Remove user from context
+            await _context.SaveChangesAsync();  // Save changes to the database
             return true;
         }
 
-        // Plain-text login logic
+        // Handle user login with plain-text password
         public async Task<(bool isSuccessful, string message)> LoginAsync(string identifier, string password)
         {
             var user = await _context.Users
-                .Include(u => u.Role)
+                .Include(u => u.Role)  // Include Role entity to get Role Name
                 .FirstOrDefaultAsync(u =>
-                    u.Email == identifier ||
-                    u.Phone == identifier ||
-                    u.LoginId == identifier);
+                    u.Email == identifier ||  // Check if identifier matches email
+                    u.Phone == identifier ||  // Check if identifier matches phone number
+                    u.LoginId == identifier);  // Check if identifier matches loginId
 
             if (user == null)
                 return (false, "User not found");
 
-            if (user.Password != password)
+            if (user.Password != password)  // Check if the provided password matches
                 return (false, "Invalid password");
 
-            return (true, "Login successful");
+            return (true, "Login successful");  // Return success if credentials match
         }
     }
 }

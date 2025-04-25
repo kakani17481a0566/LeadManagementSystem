@@ -11,5 +11,6 @@ namespace LeadManagementSystem.Services.Role
         Task UpdateRoleAsync(RoleViewModel model);
         Task<bool> DeleteRoleAsync(int id);
         Task<RoleViewModel> GetRoleByIdAsync(int id);
+
     }
 }

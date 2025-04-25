@@ -14,12 +14,14 @@ namespace LeadManagementSystem.Controllers.User
         private readonly IUserService _userService;
         private readonly ILogger<UserController> _logger;
 
+        // Constructor to inject dependencies
         public UserController(IUserService userService, ILogger<UserController> logger)
         {
             _userService = userService;
             _logger = logger;
         }
 
+        // Get all users
         [HttpGet]
         public async Task<IActionResult> GetUsers()
         {
@@ -34,6 +36,7 @@ namespace LeadManagementSystem.Controllers.User
             return Ok(users);
         }
 
+        // Get user by ID
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
@@ -48,12 +51,26 @@ namespace LeadManagementSystem.Controllers.User
             return Ok(user);
         }
 
+        // Create a new user
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] UserViewModel user)
         {
             if (user == null)
             {
                 return BadRequest("User data is required.");
+            }
+
+            // Ensure required fields are present
+            if (string.IsNullOrEmpty(user.LoginId) || string.IsNullOrEmpty(user.Password))
+            {
+                return BadRequest("LoginId and Password are required.");
+            }
+
+            // Optionally, validate that the roleId exists in the database
+            var roleExists = await _userService.RoleExistsAsync(user.RoleId);
+            if (!roleExists)
+            {
+                return BadRequest("RoleId is invalid.");
             }
 
             _logger.LogInformation("Creating user: {LoginId}", user.LoginId);
@@ -67,12 +84,18 @@ namespace LeadManagementSystem.Controllers.User
             return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
         }
 
+        // Update an existing user
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UserViewModel user)
         {
             if (user == null || id != user.Id)
             {
                 return BadRequest("Invalid user data or ID mismatch.");
+            }
+
+            if (string.IsNullOrEmpty(user.LoginId) || string.IsNullOrEmpty(user.Password))
+            {
+                return BadRequest("LoginId and Password are required.");
             }
 
             _logger.LogInformation("Updating user with ID {UserId}", id);
@@ -86,6 +109,7 @@ namespace LeadManagementSystem.Controllers.User
             return NoContent();
         }
 
+        // Delete a user
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
@@ -100,10 +124,12 @@ namespace LeadManagementSystem.Controllers.User
             return NoContent();
         }
 
-
+        // Login user
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromForm] string identifier, [FromForm] string password)
         {
+            _logger.LogInformation("Attempting login for {Identifier}", identifier);
+
             var (isSuccessful, message) = await _userService.LoginAsync(identifier, password);
 
             if (isSuccessful)
@@ -111,8 +137,10 @@ namespace LeadManagementSystem.Controllers.User
                 return Ok(new { success = true, message = message ?? "Login successful." });
             }
 
-            return BadRequest(new { success = false, message = message ?? "Invalid credentials." });
+            // Log failed login attempt
+            _logger.LogWarning("Failed login attempt for {Identifier}: {Message}", identifier, message);
+
+            return Unauthorized(new { success = false, message = message ?? "Invalid credentials." });
         }
     }
 }
-    

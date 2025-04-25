@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using LeadManagementSystem.Models;
+using LeadManagementSystem.ViewModel.Lead;
 
 namespace LeadManagementSystem.Data
 {
@@ -20,6 +21,10 @@ namespace LeadManagementSystem.Data
         public DbSet<UserModel> Users { get; set; }
         public DbSet<RolesModel> Roles { get; set; }
 
-       
+        public DbSet<LeadCountByStatusViewModel> LeadCountByStatusViewModels { get; set; }
+
+
+
+
     }
 }

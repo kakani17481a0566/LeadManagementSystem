@@ -11,6 +11,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<LeadService>();
+builder.Services.AddScoped<LeadService_>();
 
 
 // Database: Configure PostgreSQL

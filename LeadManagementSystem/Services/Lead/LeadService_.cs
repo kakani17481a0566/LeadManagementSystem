@@ -117,6 +117,57 @@ namespace LeadManagementSystem.Services.Lead
         }
 
 
+        public async Task<List<LeadCountBySourceAndStatusViewModel>> GetLeadCountBySourceAndStatusAsync()
+        {
+            var currentYear = DateTime.UtcNow.Year;
+
+            var leadCountBySourceAndStatus = await _context.leads
+                .Where(l => l.DateTime.Year == currentYear)
+                .GroupBy(l => new
+                {
+                    l.Status.Name,
+                    SourceName = l.LeadSource.Name
+                })
+                .Select(g => new LeadCountBySourceAndStatusViewModel
+                {
+                    StatusName = g.Key.Name,
+                    SourceName = g.Key.SourceName,
+                    LeadCount = g.Count()
+                })
+                .OrderBy(r => r.SourceName)
+                .ToListAsync();
+
+            return leadCountBySourceAndStatus;
+        }
+
+        public async Task<List<LeadCountBySourceAndStatusByYearViewModel>> GetLeadCountBySourceAndStatusByYearAsync(int startYear, int endYear)
+        {
+            var leadCountBySourceAndStatus = await _context.leads
+                .Where(l => l.DateTime.Year >= startYear && l.DateTime.Year <= endYear)
+                .GroupBy(l => new
+                {
+                    l.Status.Name,
+                    SourceName = l.LeadSource.Name,
+                    Year = l.DateTime.Year
+                })
+                .Select(g => new LeadCountBySourceAndStatusByYearViewModel
+                {
+                    StatusName = g.Key.Name,
+                    SourceName = g.Key.SourceName,
+                    LeadCount = g.Count(),
+                    Year = g.Key.Year
+                })
+                .OrderBy(r => r.SourceName)
+                .ThenBy(r => r.Year)
+                .ToListAsync();
+
+            return leadCountBySourceAndStatus;
+        }
+
+
+
+
+
     }
 
 }

@@ -80,5 +80,38 @@ namespace LeadManagementSystem.Controllers
         }
 
 
+        [HttpGet("LeadCountBySourceAndStatus")]
+        public async Task<ActionResult<List<LeadCountBySourceAndStatusViewModel>>> GetLeadCountBySourceAndStatus()
+        {
+            _logger.LogInformation("Getting lead count by source and status for the current year...");
+
+            var result = await _leadService.GetLeadCountBySourceAndStatusAsync();
+
+            if (result == null || result.Count == 0)
+            {
+                return NotFound("No data found for lead count by source and status.");
+            }
+
+            return Ok(result);
+        }
+
+        [HttpGet("LeadCountBySourceAndStatusByYear")]
+        public async Task<ActionResult<List<LeadCountBySourceAndStatusByYearViewModel>>> GetLeadCountBySourceAndStatusByYear([FromQuery] int startYear, [FromQuery] int endYear)
+        {
+            _logger.LogInformation($"Getting lead count by source and status from {startYear} to {endYear}...");
+
+            var result = await _leadService.GetLeadCountBySourceAndStatusByYearAsync(startYear, endYear);
+
+            if (result == null || result.Count == 0)
+            {
+                return NotFound("No data found for lead count by source and status in the specified year range.");
+            }
+
+            return Ok(result);
+        }
+
+
+
+
     }
 }

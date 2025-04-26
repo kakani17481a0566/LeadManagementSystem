@@ -406,6 +406,32 @@ namespace LeadManagementSystem.Services.Lead
         }
 
 
+        public async Task<List<LeadCountByDayViewModel>> GetLeadCountByDayAsync()
+        {
+            var currentDate = DateTime.UtcNow;
+            var currentMonth = currentDate.Month;
+            var currentYear = currentDate.Year;
+
+            var leadCountByDay = await _context.leads
+                .Where(l => l.DateTime.Year == currentYear && l.DateTime.Month == currentMonth)
+                .GroupBy(l => new { l.DateTime.Day, l.Status.Name })
+                .Select(g => new LeadCountByDayViewModel
+                {
+                    Day = g.Key.Day,  // Display day only, no 'label'
+                    TotalCount = g.Count(),
+                    ConvertedCount = g.Key.Name == "CONVERTED" ? g.Count() : 0,
+                    InProgress = g.Key.Name == "IN PROCESS" ? g.Count() : 0,
+                    NewCount = g.Key.Name == "New" ? g.Count() : 0,
+                    NonConverted = g.Key.Name == "NON - CONVERTED" ? g.Count() : 0
+                })
+                .OrderBy(r => r.Day)
+                .ToListAsync();
+
+            return leadCountByDay;
+        }
+
+
+
     }
 }
 

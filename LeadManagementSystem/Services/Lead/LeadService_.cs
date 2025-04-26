@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using LeadManagementSystem.Data;
 using LeadManagementSystem.ViewModel.Lead;
+using LeadManagementSystem.Models;
 
 namespace LeadManagementSystem.Services.Lead
 {
@@ -323,6 +324,85 @@ namespace LeadManagementSystem.Services.Lead
                 SourceName = l.LeadSource?.Name ?? "Unknown",
                 LeadCount = 1 // temporary
             }).ToList();
+        }
+
+
+        public async Task<List<LeadCount>> GetLeadCountByStatusAndMonthAsync()
+        {
+            var currentYear = DateTime.UtcNow.Year;
+
+            var leadCountByStatusAndMonth = await _context.leads
+                .Where(l => l.DateTime.Year == currentYear)
+                .GroupBy(l => new
+                {
+                    l.Status.Name,
+                    Month = l.DateTime.Month,
+                    Year = l.DateTime.Year
+                })
+                .Select(g => new LeadCountByStatusViewModel
+                {
+                    StatusName = g.Key.Name,
+                    Month = g.Key.Month,
+                    Year = g.Key.Year,
+                    LeadCount = g.Count()
+                })
+                .OrderBy(r => r.Year)
+                .ThenBy(r => r.Month)
+                .ToListAsync();
+
+            List<LeadCount> LeadCountList = new List<LeadCount>();
+            string[] MonthList = { "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" };
+            LeadCount newleadCount = new LeadCount();
+
+            int MonthFlag = 0;
+
+            foreach (var item in leadCountByStatusAndMonth)
+            {
+                Console.WriteLine(item.Month);
+
+                if (item.Month != MonthFlag)
+                {
+                    if (MonthFlag != 0) { LeadCountList.Add(newleadCount); }
+
+                    MonthFlag = item.Month;
+
+                    newleadCount = new LeadCount();
+                        newleadCount.Label = MonthList[item.Month-1]  ;
+                        
+                    
+                    
+
+
+                 }
+
+                newleadCount.TotalCount += item.LeadCount; 
+
+                switch (item.StatusName)
+                {
+                    case "CONVERTED":
+                        newleadCount.ConvertedCount += item.LeadCount;
+                        break;
+                    case "IN PROCESS":
+                        newleadCount.InProgress += item.LeadCount;
+                        break;
+                    case "New":
+                        newleadCount.NewCount += item.LeadCount;
+                        break;
+                    case "NON - CONVERTED":
+                        newleadCount.NonConverted += item.LeadCount;
+                        break;
+
+                }
+
+               
+            }
+
+            if (MonthFlag != 0) { LeadCountList.Add(newleadCount); }
+
+
+
+
+            return LeadCountList;
         }
 
 

@@ -1,4 +1,5 @@
-﻿using LeadManagementSystem.Services.Lead;
+﻿using LeadManagementSystem.Models;
+using LeadManagementSystem.Services.Lead;
 using LeadManagementSystem.ViewModel.Lead;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -229,6 +230,17 @@ namespace LeadManagementSystem.Controllers
                 _logger.LogError(ex, "Error while fetching lead count.");
                 return StatusCode(500, "Internal server error.");
             }
+        }
+
+
+        [HttpGet("lead-count-by-status-and-month")]
+        public async Task<IActionResult> GetLeadCountByStatusAndMonth()
+        {
+            // Call the service to get lead count by status and month
+            List<LeadCount> leadCountByStatus = await _leadService.GetLeadCountByStatusAndMonthAsync();
+
+            // Return the result as JSON
+            return Ok(leadCountByStatus);
         }
 
 

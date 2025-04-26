@@ -6,6 +6,9 @@ using LeadManagementSystem.Services.Lead;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddAWSLambdaHosting(LambdaEventSource.RestApi);
+
+
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

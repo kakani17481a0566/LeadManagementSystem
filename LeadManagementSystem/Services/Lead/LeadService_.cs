@@ -234,22 +234,22 @@ namespace LeadManagementSystem.Services.Lead
         // Service Method to Get Lead Count by Branch and Source
         public async Task<List<LeadCountBySourceAndBranchViewModel>> GetLeadCountBySourceAndBranchAsync()
         {
-            // Query to get the count of leads per branch and source
+            var currentYear = DateTime.UtcNow.Year;
+
             var result = await _context.leads
-                .Join(_context.branches, l => l.BranchId, b => b.Id, (l, b) => new { l, b })
-                .Join(_context.sources, lb => lb.l.LeadSourceId, s => s.Id, (lb, s) => new { lb, s })
-                .GroupBy(x => new { x.lb.b.BranchName, x.s.Name })
+                .Where(l => l.Status.Name == "CONVERTED" && l.DateTime.Year == currentYear)
+                .GroupBy(l => l.Branch.BranchName)
                 .Select(g => new LeadCountBySourceAndBranchViewModel
                 {
-                    BranchName = g.Key.BranchName,
-                    SourceName = g.Key.Name,
-                    LeadCount = g.Count()
+                    BranchName = g.Key,
+                    ConvertedCount = g.Count()
                 })
-                .OrderBy(r => r.BranchName) // Order by branch name
+                .OrderBy(r => r.BranchName)
                 .ToListAsync();
 
             return result;
         }
+
 
 
 
@@ -417,7 +417,7 @@ namespace LeadManagementSystem.Services.Lead
                 .GroupBy(l => new { l.DateTime.Day, l.Status.Name })
                 .Select(g => new LeadCountByDayViewModel
                 {
-                    Day = g.Key.Day,  // Display day only, no 'label'
+                    Day = g.Key.Day,  
                     TotalCount = g.Count(),
                     ConvertedCount = g.Key.Name == "CONVERTED" ? g.Count() : 0,
                     InProgress = g.Key.Name == "IN PROCESS" ? g.Count() : 0,
@@ -430,6 +430,25 @@ namespace LeadManagementSystem.Services.Lead
             return leadCountByDay;
         }
 
+
+
+        public async Task<List<LeadCountBySourceViewModel>> GetLeadCountBySourceAsync()
+        {
+            var currentYear = DateTime.UtcNow.Year;
+
+            var result = await _context.leads
+                .Where(l => l.DateTime.Year == currentYear)
+                .GroupBy(l => l.LeadSource.Name)
+                .Select(g => new LeadCountBySourceViewModel
+                {
+                    SourceName = g.Key,
+                    TotalLeads = g.Count()
+                })
+                .OrderBy(x => x.SourceName)
+                .ToListAsync();
+
+            return result;
+        }
 
 
     }

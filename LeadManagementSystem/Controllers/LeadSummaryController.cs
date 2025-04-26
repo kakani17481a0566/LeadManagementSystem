@@ -180,7 +180,7 @@ namespace LeadManagementSystem.Controllers
             return Ok(result);
         }
 
-
+        // using
         // GET: api/LeadSummary/LeadCountBySourceAndBranch
         [HttpGet("LeadCountBySourceAndBranch")]
         public async Task<ActionResult<List<LeadCountBySourceAndBranchViewModel>>> GetLeadCountBySourceAndBranch()
@@ -249,6 +249,14 @@ namespace LeadManagementSystem.Controllers
             List<LeadCountByDayViewModel> leadCountByDay = await _leadService.GetLeadCountByDayAsync();
             return Ok(leadCountByDay);
         }
+
+        [HttpGet("lead-count-by-source")]
+        public async Task<IActionResult> GetLeadCountBySource()
+        {
+            var result = await _leadService.GetLeadCountBySourceAsync();
+            return Ok(result);
+        }
+
 
 
 

@@ -1,6 +1,6 @@
 ﻿namespace LeadManagementSystem.ViewModel.Lead
 {
-    public class DailyLeadCountBySourceBranchViewModel
+    public class LeadSummaryViewModel
     {
         public int LeadCount { get; set; }
         public string SourceName { get; set; }
@@ -10,4 +10,3 @@
         public int Day { get; set; }
     }
 }
- 

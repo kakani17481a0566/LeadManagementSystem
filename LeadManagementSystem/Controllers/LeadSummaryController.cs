@@ -195,6 +195,43 @@ namespace LeadManagementSystem.Controllers
 
             return Ok(result);
         }
+
+
+        [HttpGet("LeadCountByDateRange")]
+        public async Task<IActionResult> GetLeadCountByDateRange(
+     [FromQuery] int startYear,
+     [FromQuery] int startMonth,
+     [FromQuery] int startDay,
+     [FromQuery] int endYear,
+     [FromQuery] int endMonth,
+     [FromQuery] int endDay)
+        {
+            _logger.LogInformation(
+                "Fetching lead count from {StartDate} to {EndDate}",
+                new DateTime(startYear, startMonth, startDay).ToShortDateString(),
+                new DateTime(endYear, endMonth, endDay).ToShortDateString());
+
+            try
+            {
+                var result = await _leadService.DateTimeGetLeadCountByDateRangeAsync(
+                    startYear, startMonth, startDay, endYear, endMonth, endDay);
+
+                if (result == null || result.Count == 0)
+                {
+                    return NotFound("No leads found for the specified date range.");
+                }
+
+                // Return the results grouped by Year, Month, and Day
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while fetching lead count.");
+                return StatusCode(500, "Internal server error.");
+            }
+        }
+
+
     }
 
 }

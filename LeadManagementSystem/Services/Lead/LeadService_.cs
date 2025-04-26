@@ -250,6 +250,82 @@ namespace LeadManagementSystem.Services.Lead
             return result;
         }
 
+
+
+        public async Task<List<LeadCountByBranchAndSourceViewModel>> GetLeadCountByDateRangeAsync(
+            int startYear, int startMonth, int startDay, int endYear, int endMonth, int endDay)
+        {
+            // Create DateTime objects for start and end date
+            var startDate = new DateTime(startYear, startMonth, startDay);
+            var endDate = new DateTime(endYear, endMonth, endDay).AddDays(1); // Add one day to include the full last day
+
+            // Fetch all leads from the database
+            var allLeads = await _context.leads
+                .Include(l => l.Branch)
+                .Include(l => l.LeadSource)
+                .ToListAsync();
+
+            // Initialize a list to hold the result after filtering and processing
+            var leadCountResult = new List<LeadCountByBranchAndSourceViewModel>();
+
+            // Process leads to count based on date range
+            foreach (var lead in allLeads)
+            {
+                if (lead.DateTime >= startDate && lead.DateTime < endDate)
+                {
+                    var day = lead.DateTime.Day;
+                    var existingRecord = leadCountResult.Find(r => r.BranchName == lead.Branch.BranchName &&
+                                                                  r.SourceName == lead.LeadSource.Name &&
+                                                                  r.Day == day);
+
+                    if (existingRecord != null)
+                    {
+                        // If record exists, increment the lead count
+                        existingRecord.LeadCount++;
+                    }
+                    else
+                    {
+                        // If no existing record, create a new entry
+                        leadCountResult.Add(new LeadCountByBranchAndSourceViewModel
+                        {
+                            BranchName = lead.Branch.BranchName,
+                            SourceName = lead.LeadSource.Name,
+                            LeadCount = 1,
+                            Day = day
+                        });
+                    }
+                }
+            }
+
+            return leadCountResult;
+        }
+        public async Task<List<LeadCountByBranchAndSourceViewModel>> DateTimeGetLeadCountByDateRangeAsync(
+     int startYear, int startMonth, int startDay, int endYear, int endMonth, int endDay)
+        {
+            // Ensure the DateTime values are explicitly set to UTC
+            var startDate = new DateTime(startYear, startMonth, startDay, 0, 0, 0, DateTimeKind.Utc);
+            var endDate = new DateTime(endYear, endMonth, endDay, 0, 0, 0, DateTimeKind.Utc).AddDays(1); // Include entire end day
+
+            // Fetch leads within the date range
+            var allLeads = await _context.leads
+                .Include(l => l.Branch)
+                .Include(l => l.LeadSource)
+                .Where(l => l.DateTime >= startDate && l.DateTime < endDate)
+                .ToListAsync();
+
+            // Return raw leads (or group later)
+            return allLeads.Select(l => new LeadCountByBranchAndSourceViewModel
+            {
+                Year = l.DateTime.Year,
+                Month = l.DateTime.Month,
+                Day = l.DateTime.Day,
+                BranchName = l.Branch?.BranchName ?? "Unknown",
+                SourceName = l.LeadSource?.Name ?? "Unknown",
+                LeadCount = 1 // temporary
+            }).ToList();
+        }
+
+
     }
 }
 

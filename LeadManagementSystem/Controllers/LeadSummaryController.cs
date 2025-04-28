@@ -257,6 +257,23 @@ namespace LeadManagementSystem.Controllers
             return Ok(result);
         }
 
+        // GET: api/LeadSummary/LeadCountByBranch
+        [HttpGet("LeadCountByBranch-SuccessPercentage")]
+        public async Task<ActionResult<List<LeadCountByBranchModel>>> GetLeadCountByBranch()
+        {
+            _logger.LogInformation("Fetching lead count by branch for the current year...");
+
+            var leadCountByBranch = await _leadService.GetLeadCountByBranchAsync();
+
+            if (leadCountByBranch == null || leadCountByBranch.Count == 0)
+            {
+                return NotFound("No data found for lead count by branch.");
+            }
+
+            return Ok(leadCountByBranch);
+        }
+
+
 
 
 

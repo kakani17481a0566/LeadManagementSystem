@@ -451,6 +451,40 @@ namespace LeadManagementSystem.Services.Lead
         }
 
 
+        public async Task<List<LeadCountByBranchModel>> GetLeadCountByBranchAsync()
+        {
+            var currentYear = DateTime.UtcNow.Year;
+
+            var leadCounts = await _context.leads
+                .Where(l => l.DateTime.Year == currentYear)  // Filter by the current year using Year property
+                .GroupBy(l => new { l.Branch.BranchName, l.BranchId })  // Group by branch
+                .Select(g => new LeadCountByBranchModel
+                {
+                    BranchName = g.Key.BranchName,
+                    ConvertedCount = g.Count(l => l.Status.Name == "CONVERTED"),  // Count converted leads
+                    TotalCount = g.Count(),  // Count all leads
+                })
+                .ToListAsync();
+
+            // Calculate Success Percentage
+            foreach (var item in leadCounts)
+            {
+                if (item.TotalCount > 0)
+                {
+                    item.SuccessPercentage = Math.Round((item.ConvertedCount * 100.0) / item.TotalCount, 2);
+
+                }
+                else
+                {
+                    item.SuccessPercentage = 0;
+                }
+            }
+
+            return leadCounts.OrderBy(x => x.BranchName).ToList();  // Sort by branch name
+        }
+
+
+
     }
 }
 

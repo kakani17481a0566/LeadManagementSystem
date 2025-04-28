@@ -49,6 +49,8 @@ else
 }
 
 app.UseHttpsRedirection();
+app.UseCors("AllowSpecificOrigin");
+
 
 app.UseAuthorization(); // Add if using [Authorize]
 

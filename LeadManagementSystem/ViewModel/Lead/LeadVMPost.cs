@@ -9,7 +9,7 @@
         public int LeadTypeId { get; set; }
         public DateTime DateTime { get; set; }
         public bool Converted { get; set; }
-        public string SalesPerson { get; set; }
+        public int SalesPersonId { get; set; }
         public int LeadListId { get; set; }
         public int StatusId { get; set; }
         public int OwnerId { get; set; }

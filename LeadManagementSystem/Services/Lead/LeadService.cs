@@ -47,7 +47,7 @@ namespace LeadManagementSystem.Services.Lead
                 LeadTypeName = l.LeadType.Type,
                 DateTime = l.DateTime,
                 Converted = l.Converted,
-                SalesPerson = l.SalesPerson,
+                SalesPersonId = l.SalesPersonId,
                 LeadListId = l.LeadListId,
                 StatusId = l.StatusId,
                 StatusName = l.Status.Name,
@@ -91,7 +91,7 @@ namespace LeadManagementSystem.Services.Lead
                 LeadTypeName = lead.LeadType.Type,
                 DateTime = lead.DateTime,
                 Converted = lead.Converted,
-                SalesPerson = lead.SalesPerson,
+                SalesPersonId = lead.SalesPersonId,
                 LeadListId = lead.LeadListId,
                 StatusId = lead.StatusId,
                 StatusName = lead.Status.Name,
@@ -115,7 +115,7 @@ namespace LeadManagementSystem.Services.Lead
                 LeadTypeId = leadVMPost.LeadTypeId,
                 DateTime = leadVMPost.DateTime,
                 Converted = leadVMPost.Converted,
-                SalesPerson = leadVMPost.SalesPerson,
+                SalesPersonId = leadVMPost.SalesPersonId,
                 LeadListId = leadVMPost.LeadListId,
                 StatusId = leadVMPost.StatusId,
                 OwnerId = leadVMPost.OwnerId,
@@ -146,7 +146,7 @@ namespace LeadManagementSystem.Services.Lead
             leadEntity.LeadTypeId = leadVMPost.LeadTypeId;
             leadEntity.DateTime = leadVMPost.DateTime;
             leadEntity.Converted = leadVMPost.Converted;
-            leadEntity.SalesPerson = leadVMPost.SalesPerson;
+            leadEntity.SalesPersonId = leadVMPost.SalesPersonId;
             leadEntity.LeadListId = leadVMPost.LeadListId;
             leadEntity.StatusId = leadVMPost.StatusId;
             leadEntity.OwnerId = leadVMPost.OwnerId;

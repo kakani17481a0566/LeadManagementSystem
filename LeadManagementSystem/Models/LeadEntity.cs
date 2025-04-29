@@ -32,7 +32,7 @@ namespace LeadManagementSystem.Models
         public bool Converted { get; set; }
 
         [Column("sales_person_id")]  // Foreign key to SalesPerson
-        public int? SalesPersonId { get; set; }  // Nullable if not always assigned
+        public int SalesPersonId { get; set; }  // Nullable if not always assigned
 
         [Column("lead_list_id")]  // Foreign key to lead list
         public int LeadListId { get; set; }

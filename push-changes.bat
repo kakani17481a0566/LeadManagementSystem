@@ -8,8 +8,7 @@ REM Step 2: Commit changes
 git commit -m "Updated SalesPerson components"
 
 REM Step 3: Push to multiple branches
-git push origin HEAD:master HEAD:mast HEAD:Team1
-
+git push origin HEAD:master
 REM Done
 echo "Changes pushed to master, mast, and Team1 branches successfully."
 pause

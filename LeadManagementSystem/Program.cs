@@ -11,7 +11,7 @@ using LeadManagementSystem.Services.Lead;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAWSLambdaHosting(LambdaEventSource.RestApi);
+builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 
 
 // Add services to the container.
@@ -49,7 +49,7 @@ else
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AllowSpecificOrigin");
+//app.UseCors("AllowSpecificOrigin");
 
 
 app.UseAuthorization(); // Add if using [Authorize]

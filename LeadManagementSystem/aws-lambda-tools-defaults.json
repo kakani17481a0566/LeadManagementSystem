@@ -7,7 +7,7 @@
     "function-name" : "test1",
     "function-description" : "",
     "package-type"         : "Zip",
-    "function-handler"     : "LeadManagementSystem::LeadManagementSystem.LambdaEntryPoint::FunctionHandlerAsync",
+    "function-handler"     : "LeadManagementSystem",
     "function-memory-size" : 512,
     "function-timeout"     : 15,
     "function-runtime"     : "dotnet8",

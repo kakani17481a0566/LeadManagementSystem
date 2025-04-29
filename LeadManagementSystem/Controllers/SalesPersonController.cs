@@ -2,10 +2,8 @@
 using LeadManagementSystem.Services;
 using LeadManagementSystem.Models;
 using Microsoft.Extensions.Logging;
-using System.Security.Cryptography.X509Certificates;
-using LeadManagementSystem.ViewModel.User;
-using LeadManagementSystem.Services.ServiceImpl;
 using LeadManagementSystem.ViewModel.Request;
+using LeadManagementSystem.ViewModel.Response;
 
 namespace LeadManagementSystem.Controllers
 {
@@ -63,6 +61,34 @@ namespace LeadManagementSystem.Controllers
 
             return Ok(salesPerson);
 
+        }
+
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var deleted = await _salesPersonService.DeleteAsync(id);
+            if (!deleted)
+            {
+                _logger.LogWarning($"Salesperson with ID {id} not found for deletion.");
+                return NotFound($"Salesperson with ID {id} not found.");
+            }
+
+            return NoContent();
+        }
+
+
+        [HttpPost("post-sales-person")]
+        public ActionResult<SalesPersonResponse> CreateSalesPerson([FromBody] SalesPersonRequestVM salesPerson) 
+        { 
+            if (salesPerson == null)
+            {
+                return BadRequest("Sales Person Data IS Null");
+            }
+
+            return Ok(_salesPersonService.addSalesPerson(salesPerson));
+        
+        
         }
     }
 }

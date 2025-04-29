@@ -13,12 +13,12 @@ namespace LeadManagementSystem.Services.ServiceImpl
             _context = context;
         }
 
-        public async Task<IEnumerable<SalesPerson>> GetAllAsync()
+        public async Task<IEnumerable<salesperson>> GetAllAsync()
         {
             return await _context.SalesPersons.ToListAsync();
         }
 
-        public async Task<SalesPerson?> GetByIdAsync(int id)
+        public async Task<salesperson?> GetByIdAsync(int id)
         {
             return await _context.SalesPersons.FindAsync(id);
         }

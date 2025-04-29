@@ -54,6 +54,6 @@ namespace LeadManagementSystem.Models
         public UserModel Owner { get; set; }           // Navigation property for Owner (User)
         public Branch Branch { get; set; }             // Navigation property for Branch
         public School School { get; set; }             // Navigation property for School
-        public SalesPerson SalesPerson { get; set; }   // Navigation property for SalesPerson
+        public salesperson SalesPerson { get; set; }   // Navigation property for SalesPerson
     }
 }

@@ -17,12 +17,12 @@ namespace LeadManagementSystem.Services.ServiceImpl
             _context = context;
         }
 
-        public async Task<IEnumerable<salesperson>> UpdateAllAsync()
+        public async Task<IEnumerable<salesperson>> GetAllAsync()
         {
             return await _context.SalesPersons.ToListAsync();
         }
 
-        public async Task<salesperson?> UpdateByIdAsync(int id)
+        public async Task<salesperson?> GetByIdAsync(int id)
         {
             return await _context.SalesPersons.FindAsync(id);
         }
@@ -70,26 +70,21 @@ namespace LeadManagementSystem.Services.ServiceImpl
             var saleperson = _context.SalesPersons.FirstOrDefault(x => x.Id == id);
             if (saleperson != null)
             {
-                var updates = new salesPerson()
-                {
-                    Name = person.Name,
-                    Email = person.Email,
-                    PhoneNumber = person.PhoneNumber,
-                    PaymentType=person.PaymentType,
-                    FirstPayment = person.FirstPayment,
-                    RecurringPercentage=person.RecurringPercentage               
-                };
-                _context.SaveChanges();
+                saleperson.Name = person.Name;
+                saleperson.Email = person.Email;
+                saleperson.PhoneNumber = person.PhoneNumber;
+                saleperson.PaymentType = person.PaymentType;
+                saleperson.FirstPayment = person.FirstPayment;
+                saleperson.RecurringPercentage = person.RecurringPercentage;
+
+                _context.SaveChanges(); // EF will track the changes automatically
                 return person;
-
-
             }
+
             return null;
         }
 
-        internal async Task UpdateAll()
-        {
-            throw new NotImplementedException();
-        }
+
+
     }
 }

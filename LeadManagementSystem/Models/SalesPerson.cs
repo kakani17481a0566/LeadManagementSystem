@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace LeadManagementSystem.Models
 {
     [Table("salesperson")]
-    public class salesperson
+    public class SalesPerson
     {
         [Key]
         [Column("id")]
@@ -13,23 +13,26 @@ namespace LeadManagementSystem.Models
 
         [Required]
         [MaxLength(100)]
-        [Column("name")] // Added this to match lowercase DB column
+        [Column("name")]
         public string Name { get; set; }
 
+        [Required]
         [MaxLength(50)]
         [Column("code")]
         public string Code { get; set; }
 
         [MaxLength(20)]
-        [Column("phonenumber")] // Added to match DB column
+        [Column("phonenumber")]
+        [Phone]
         public string PhoneNumber { get; set; }
 
         [MaxLength(100)]
         [Column("email")]
+        [EmailAddress]
         public string Email { get; set; }
 
         [Range(1, 2)]
-        [Column("paymenttype")] // Added to match DB column
+        [Column("paymenttype")]
         public short PaymentType { get; set; }
 
         [Column("firstpayment", TypeName = "decimal(10,2)")]
@@ -38,7 +41,6 @@ namespace LeadManagementSystem.Models
         [Column("recurringpercentage", TypeName = "decimal(5,2)")]
         public decimal RecurringPercentage { get; set; }
 
-        // Navigation property
         public ICollection<LeadEntity> Leads { get; set; }
     }
 }

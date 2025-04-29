@@ -1,21 +1,26 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LeadManagementSystem.ViewModel.Request
 {
-    public class salespersonVM
+    public class SalesPersonVM
     {
         [Required]
         [MaxLength(100)]
         public string Name { get; set; }
-        [MaxLength(50)]
-        public string Email { get; set; }
-        
-        
-        public string PhoneNumber { get; set; }
-        public short PaymentType { get; set; }
-        public decimal FirstPayment { get; set; }
-        public decimal RecurringPercentage { get; set; }
 
+        [MaxLength(100)]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        [Phone]
+        public string PhoneNumber { get; set; }
+
+        [Range(1, 2)]
+        public short PaymentType { get; set; }
+
+        public decimal FirstPayment { get; set; }
+
+        [Range(0, 100)]
+        public decimal RecurringPercentage { get; set; }
     }
 }

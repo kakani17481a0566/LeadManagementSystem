@@ -21,7 +21,7 @@ namespace LeadManagementSystem.Data
         public DbSet<UserModel> Users { get; set; }
         public DbSet<RolesModel> Roles { get; set; }
 
-        public DbSet<salesperson> SalesPersons { get; set; }
+        public DbSet<SalesPerson> SalesPersons { get; set; }
 
         public DbSet<LeadCountByStatusViewModel> LeadCountByStatusViewModels { get; set; }
 

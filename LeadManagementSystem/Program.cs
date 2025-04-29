@@ -1,6 +1,7 @@
 ﻿using Amazon.Lambda.Core;
 
 
+using LeadManagementSystem.Services.ServiceImpl;
 
 
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<LeadService>();
 builder.Services.AddScoped<LeadService_>();
-builder.Services.AddTransient<SalesPersonService, SalesPersonIServicempl>();
+builder.Services.AddTransient<SalesPersonService, SalesPersonServiceImpl>();
 
 
 // Database: Configure PostgreSQL

@@ -1,87 +1,58 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using LeadManagementSystem.Services;
-using LeadManagementSystem.Models;
-using Microsoft.Extensions.Logging;
 using LeadManagementSystem.ViewModel.Request;
 using LeadManagementSystem.ViewModel.Response;
+using LeadManagementSystem.Models;
 
-namespace LeadManagementSystem.Controllers
+[Route("api/[controller]")]
+[ApiController]
+public class SalesPersonController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class SalesPersonController : ControllerBase
+    private readonly SalesPersonService _service;
+
+    public SalesPersonController(SalesPersonService service)
     {
-        private readonly SalesPersonService _salesPersonService;
-        private readonly ILogger<SalesPersonController> _logger;
+        _service = service;
+    }
 
-        public SalesPersonController(SalesPersonService salesPersonService, ILogger<SalesPersonController> logger)
-        {
-            _salesPersonService = salesPersonService;
-            _logger = logger;
-        }
+    // CREATE
+    [HttpPost]
+    public async Task<ActionResult<SalesPersonResponse>> Create([FromBody] SalesPersonRequestVM request)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        var result = await _service.AddSalesPersonAsync(request);
+        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+    }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<salesperson>>> GetAll()
-        {
-            var salesPeople = await _salesPersonService.GetAllAsync();
-            return Ok(salesPeople);
-        }
+    // READ ALL
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<SalesPerson>>> GetAll()
+    {
+        return Ok(await _service.GetAllAsync());
+    }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<salesperson>> GetById(int id)
-        {
-            var salesPerson = await _salesPersonService.GetByIdAsync(id);
-            if (salesPerson == null)
-            {
-                _logger.LogWarning($"Salesperson with ID {id} not found.");
-                return NotFound($"Salesperson with ID {id} not found.");
-            }
+    // READ BY ID
+    [HttpGet("{id}")]
+    public async Task<ActionResult<SalesPerson>> GetById(int id)
+    {
+        var result = await _service.GetByIdAsync(id);
+        return result != null ? Ok(result) : NotFound();
+    }
 
-            return Ok(salesPerson);
+    // UPDATE
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] SalesPersonVM request)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        var result = await _service.UpdateSalesPersonAsync(id, request);
+        return result != null ? NoContent() : NotFound();
+    }
 
-
-        }
-  
-        [HttpPut("{id}")]
-        public  ActionResult<salespersonVM> UpdateById(int id, [FromBody] salespersonVM salesperson)
-        {
-            var salespersonrespounce =  _salesPersonService.UpdateSalesPerson(id , salesperson);
-            if (salespersonrespounce == null)
-            {
-                _logger.LogWarning($"Salesperson with ID {id} not found.");
-                return NotFound($"Salesperson with ID {id} not found.");
-            }
-
-            return Ok(salespersonrespounce);
-
-        }
-
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var deleted = await _salesPersonService.DeleteAsync(id);
-            if (!deleted)
-            {
-                _logger.LogWarning($"Salesperson with ID {id} not found for deletion.");
-                return NotFound($"Salesperson with ID {id} not found.");
-            }
-
-            return NoContent();
-        }
-
-
-        [HttpPost("post-sales-person")]
-        public ActionResult<SalesPersonResponse> CreateSalesPerson([FromBody] SalesPersonRequestVM salesPerson) 
-        { 
-            if (salesPerson == null)
-            {
-                return BadRequest("Sales Person Data IS Null");
-            }
-
-            return Ok(_salesPersonService.addSalesPerson(salesPerson));
-        
-        
-        }
+    // DELETE
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var success = await _service.DeleteAsync(id);
+        return success ? NoContent() : NotFound();
     }
 }

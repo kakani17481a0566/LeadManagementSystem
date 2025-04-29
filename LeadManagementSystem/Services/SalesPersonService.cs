@@ -6,5 +6,8 @@ namespace LeadManagementSystem.Services
     {
         Task<IEnumerable<salesperson>> GetAllAsync();
         Task<salesperson?> GetByIdAsync(int id);
+
+        Task<bool> DeleteAsync(int id);
+
     }
 }

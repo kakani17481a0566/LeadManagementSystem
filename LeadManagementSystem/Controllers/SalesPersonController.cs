@@ -37,5 +37,20 @@ namespace LeadManagementSystem.Controllers
 
             return Ok(salesPerson);
         }
+
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var deleted = await _salesPersonService.DeleteAsync(id);
+            if (!deleted)
+            {
+                _logger.LogWarning($"Salesperson with ID {id} not found for deletion.");
+                return NotFound($"Salesperson with ID {id} not found.");
+            }
+
+            return NoContent();
+        }
+
     }
 }

@@ -22,5 +22,16 @@ namespace LeadManagementSystem.Services.ServiceImpl
         {
             return await _context.SalesPersons.FindAsync(id);
         }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var person = await _context.SalesPersons.FindAsync(id);
+            if (person == null) return false;
+
+            _context.SalesPersons.Remove(person);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
     }
 }

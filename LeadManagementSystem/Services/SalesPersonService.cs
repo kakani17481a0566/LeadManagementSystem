@@ -9,6 +9,9 @@ namespace LeadManagementSystem.Services
     {
         Task<IEnumerable<salesperson>> GetAllAsync();
         Task<salesperson?> GetByIdAsync(int id);
+
+        Task<bool> DeleteAsync(int id);
+
         Task<IEnumerable<SalesPerson>> GetAllAsync();
         Task<SalesPerson?> GetByIdAsync(int id);
         SalesPersonRequestVM addSalesPerson(SalesPersonRequestVM request);

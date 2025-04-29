@@ -2,6 +2,10 @@
 using LeadManagementSystem.Services;
 using LeadManagementSystem.Models;
 using Microsoft.Extensions.Logging;
+using System.Security.Cryptography.X509Certificates;
+using LeadManagementSystem.ViewModel.User;
+using LeadManagementSystem.Services.ServiceImpl;
+using LeadManagementSystem.ViewModel.Request;
 
 namespace LeadManagementSystem.Controllers
 {
@@ -21,14 +25,14 @@ namespace LeadManagementSystem.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<salesperson>>> GetAll()
         {
-            var salesPeople = await _salesPersonService.GetAllAsync();
+            var salesPeople = await _salesPersonService.UpdateAllAsync();
             return Ok(salesPeople);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<salesperson>> GetById(int id)
         {
-            var salesPerson = await _salesPersonService.GetByIdAsync(id);
+            var salesPerson = await _salesPersonService.UpdateByIdAsync(id);
             if (salesPerson == null)
             {
                 _logger.LogWarning($"Salesperson with ID {id} not found.");
@@ -36,6 +40,29 @@ namespace LeadManagementSystem.Controllers
             }
 
             return Ok(salesPerson);
+
+
+        }
+        [HttpPut]
+        public async Task<ActionResult<IEnumerable<SalesPerson>>> UpdateAll()
+        {
+
+            var salesperson = await _salesPersonService.UpdateAllAsync();
+            return Ok(salesperson);
+
+        }
+        [HttpPut("{id}")]
+        public async Task<ActionResult<salesperson>> UpdateById(int id, [FromBody] salespersonVM salesperson)
+        {
+            var salesPerson = await _salesPersonService.UpdateByIdAsync(id);
+            if (salesPerson == null)
+            {
+                _logger.LogWarning($"Salesperson with ID {id} not found.");
+                return NotFound($"Salesperson with ID {id} not found.");
+            }
+
+            return Ok(salesPerson);
+
         }
     }
 }

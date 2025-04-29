@@ -4,7 +4,7 @@ namespace LeadManagementSystem.Services
 {
     public interface SalesPersonService
     {
-        Task<IEnumerable<salesperson>> GetAllAsync();
-        Task<salesperson?> GetByIdAsync(int id);
+        Task<IEnumerable<salesperson>> UpdateAllAsync();
+        Task<salesperson?> UpdateByIdAsync(int id);
     }
 }

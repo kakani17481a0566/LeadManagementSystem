@@ -21,11 +21,12 @@ namespace LeadManagementSystem.Models
         [Column("code")]
         public string Code { get; set; }
 
-        [MaxLength(20)]
-        [Column("phonenumber")]
+        [Required]
         [Phone]
+        [StringLength(10, ErrorMessage = "Phone number must be 10 digits")]
+        [RegularExpression(@"^[0-9]{10}$", ErrorMessage = "Phone number must contain only digits")]
+        [Column("phonenumber")]
         public string PhoneNumber { get; set; }
-
         [MaxLength(100)]
         [Column("email")]
         [EmailAddress]

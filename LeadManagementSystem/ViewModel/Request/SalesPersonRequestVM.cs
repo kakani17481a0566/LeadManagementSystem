@@ -8,7 +8,10 @@ namespace LeadManagementSystem.ViewModel.Request
         [Required, MaxLength(100)]
         public string Name { get; set; }
 
+        [Required]
         [Phone]
+        [StringLength(10, ErrorMessage = "Phone number must be 10 digits")]
+        [RegularExpression(@"^[0-9]{10}$", ErrorMessage = "Phone number must contain only digits")]
         public string PhoneNumber { get; set; }
 
         [EmailAddress]

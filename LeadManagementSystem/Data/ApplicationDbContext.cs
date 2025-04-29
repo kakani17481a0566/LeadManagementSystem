@@ -25,8 +25,18 @@ namespace LeadManagementSystem.Data
 
         public DbSet<LeadCountByStatusViewModel> LeadCountByStatusViewModels { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<SalesPerson>(entity =>
+            {
+                entity.Property(e => e.PhoneNumber)
+                    .HasMaxLength(10)
+                    .IsFixedLength();
+            });
+        }
 
-     
+
+
 
 
     }

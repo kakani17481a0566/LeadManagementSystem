@@ -9,8 +9,8 @@ namespace LeadManagementSystem.ViewModel.Request
         [MaxLength(100)]
         public string Name { get; set; }
 
-        [MaxLength(50)]
-        public string Code { get; set; }
+        //[MaxLength(50)]
+        //public string Code { get; set; }
 
         [MaxLength(20)]
         public string PhoneNumber { get; set; }

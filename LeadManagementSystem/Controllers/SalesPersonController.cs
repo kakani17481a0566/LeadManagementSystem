@@ -2,6 +2,8 @@
 using LeadManagementSystem.Services;
 using LeadManagementSystem.Models;
 using Microsoft.Extensions.Logging;
+using LeadManagementSystem.ViewModel.Request;
+using LeadManagementSystem.ViewModel.Response;
 
 namespace LeadManagementSystem.Controllers
 {
@@ -52,5 +54,18 @@ namespace LeadManagementSystem.Controllers
             return NoContent();
         }
 
+
+        [HttpPost("post-sales-person")]
+        public ActionResult<SalesPersonResponse> CreateSalesPerson([FromBody] SalesPersonRequestVM salesPerson) 
+        { 
+            if (salesPerson == null)
+            {
+                return BadRequest("Sales Person Data IS Null");
+            }
+
+            return Ok(_salesPersonService.addSalesPerson(salesPerson));
+        
+        
+        }
     }
 }

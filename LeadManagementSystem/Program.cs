@@ -8,6 +8,8 @@ using LeadManagementSystem.Data;
 using LeadManagementSystem.Services.Role;
 using LeadManagementSystem.Services.User;
 using LeadManagementSystem.Services.Lead;
+using LeadManagementSystem.Services;
+using LeadManagementSystem.Services.ServiceImpl;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +22,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<LeadService>();
 builder.Services.AddScoped<LeadService_>();
+builder.Services.AddTransient<SalesPersonService, SalesPersonIServicempl>();
 
 
 // Database: Configure PostgreSQL

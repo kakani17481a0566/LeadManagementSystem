@@ -3,6 +3,7 @@ using LeadManagementSystem.Services;
 using LeadManagementSystem.Models;
 using Microsoft.Extensions.Logging;
 using LeadManagementSystem.ViewModel.Request;
+using LeadManagementSystem.ViewModel.Response;
 
 namespace LeadManagementSystem.Controllers
 {
@@ -55,7 +56,7 @@ namespace LeadManagementSystem.Controllers
 
 
         [HttpPost("post-sales-person")]
-        public ActionResult<SalesPersonRequestVM> CreateSalesPerson([FromBody] SalesPersonRequestVM salesPerson) 
+        public ActionResult<SalesPersonResponse> CreateSalesPerson([FromBody] SalesPersonRequestVM salesPerson) 
         { 
             if (salesPerson == null)
             {

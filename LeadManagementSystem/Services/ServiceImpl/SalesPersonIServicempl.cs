@@ -2,6 +2,7 @@
 using LeadManagementSystem.Data;
 using LeadManagementSystem.Models;
 using LeadManagementSystem.ViewModel.Request;
+using LeadManagementSystem.ViewModel.Response;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -25,12 +26,12 @@ namespace LeadManagementSystem.Services.ServiceImpl
         {
             return await _context.SalesPersons.FindAsync(id);
         }
-        public SalesPersonRequestVM addSalesPerson(SalesPersonRequestVM request)
+        public SalesPersonResponse addSalesPerson(SalesPersonRequestVM request)
         {
-            var Person = new SalesPerson()
+            var Person = new salesperson()
             {
                 Name = request.Name,
-                Code = GenerateRandomCode(),
+                Code = request.Name.Split(" ")[0] + GenerateRandomCode(),
                 PhoneNumber = request.PhoneNumber,
                 Email = request.Email,
                 PaymentType = request.PaymentType,
@@ -41,23 +42,17 @@ namespace LeadManagementSystem.Services.ServiceImpl
 
             _context.SalesPersons.Add(Person);
             _context.SaveChanges();
+            var response = SalesPersonResponse.ToViewModel(Person);            
 
-            return request;
+            return response;
         
         }
         public static string GenerateRandomCode() 
         {
-            var Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            return new string(Chars.Select(c => Chars[new Random().Next(Chars.Length)]).Take(5).ToArray());
+            var Chars = "0123456789";
+            return new string(Chars.Select(c => Chars[new Random().Next(Chars.Length)]).Take(3).ToArray());
 
         }
-        
-        
-
-
-
-
-
     
 
         public async Task<bool> DeleteAsync(int id)

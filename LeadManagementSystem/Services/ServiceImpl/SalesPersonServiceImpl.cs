@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace LeadManagementSystem.Services.ServiceImpl
 {
+    // Service implementation for managing SalesPerson data
     public class SalesPersonServiceImpl : SalesPersonService
     {
         private static readonly Random _random = new Random();
@@ -24,20 +25,25 @@ namespace LeadManagementSystem.Services.ServiceImpl
             _logger = logger;
         }
 
+        // Add a new salesperson with a unique code
         public async Task<SalesPersonResponse> AddSalesPersonAsync(SalesPersonRequestVM request)
         {
             try
             {
+                // Take first part of the name (limit to 47 characters if needed)
                 var namePart = request.Name.Split(' ')[0];
                 if (namePart.Length > 47)
                     namePart = namePart[..47];
 
                 string code;
+
+                // Generate unique code (namePart + random 3-digit number)
                 do
                 {
                     code = namePart + GenerateRandomCode();
                 } while (await _context.SalesPersons.AnyAsync(sp => sp.Code == code));
 
+                // Create new SalesPerson entity
                 var person = new SalesPerson
                 {
                     Name = request.Name,
@@ -49,8 +55,11 @@ namespace LeadManagementSystem.Services.ServiceImpl
                     RecurringPercentage = request.RecurringPercentage
                 };
 
+                // Save to database
                 _context.SalesPersons.Add(person);
                 await _context.SaveChangesAsync();
+
+                // Return response
                 return SalesPersonResponse.ToViewModel(person);
             }
             catch (Exception ex)
@@ -60,6 +69,7 @@ namespace LeadManagementSystem.Services.ServiceImpl
             }
         }
 
+        // Get all salespersons from the database
         public async Task<IEnumerable<SalesPerson>> GetAllAsync()
         {
             try
@@ -73,6 +83,7 @@ namespace LeadManagementSystem.Services.ServiceImpl
             }
         }
 
+        // Get a single salesperson by ID
         public async Task<SalesPerson?> GetByIdAsync(int id)
         {
             try
@@ -87,16 +98,19 @@ namespace LeadManagementSystem.Services.ServiceImpl
             }
         }
 
+        // Update salesperson details
         public async Task<SalesPerson?> UpdateSalesPersonAsync(int id, SalesPersonVM request)
         {
             try
             {
+                // Find salesperson by ID
                 var salesPerson = await _context.SalesPersons
                     .FirstOrDefaultAsync(sp => sp.Id == id);
 
                 if (salesPerson == null)
                     return null;
 
+                // Update fields
                 salesPerson.Name = request.Name;
                 salesPerson.Email = request.Email;
                 salesPerson.PhoneNumber = request.PhoneNumber;
@@ -104,6 +118,7 @@ namespace LeadManagementSystem.Services.ServiceImpl
                 salesPerson.FirstPayment = request.FirstPayment;
                 salesPerson.RecurringPercentage = request.RecurringPercentage;
 
+                // Save changes
                 await _context.SaveChangesAsync();
                 return salesPerson;
             }
@@ -114,14 +129,17 @@ namespace LeadManagementSystem.Services.ServiceImpl
             }
         }
 
+        // Delete salesperson by ID
         public async Task<bool> DeleteAsync(int id)
         {
             try
             {
+                // Find by ID
                 var person = await _context.SalesPersons.FindAsync(id);
                 if (person == null)
                     return false;
 
+                // Remove from database
                 _context.SalesPersons.Remove(person);
                 await _context.SaveChangesAsync();
                 return true;
@@ -133,9 +151,10 @@ namespace LeadManagementSystem.Services.ServiceImpl
             }
         }
 
+        // Generate a random 3-digit code
         private static string GenerateRandomCode()
         {
-            return _random.Next(100, 999).ToString(); // Generates 3-digit code
+            return _random.Next(100, 999).ToString();
         }
     }
 }

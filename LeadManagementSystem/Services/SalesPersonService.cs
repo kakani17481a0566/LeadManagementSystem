@@ -1,5 +1,4 @@
-﻿// LeadManagementSystem/Services/SalesPersonService.cs
-using LeadManagementSystem.Models;
+﻿using LeadManagementSystem.Models;
 using LeadManagementSystem.ViewModel.Request;
 using LeadManagementSystem.ViewModel.Response;
 using System.Collections.Generic;
@@ -9,10 +8,11 @@ namespace LeadManagementSystem.Services
 {
     public interface SalesPersonService
     {
+        Task<SalesPersonResponse> AddSalesPersonAsync(SalesPersonRequestVM request);
         Task<IEnumerable<SalesPerson>> GetAllAsync();
         Task<SalesPerson?> GetByIdAsync(int id);
-        Task<SalesPersonResponse> AddSalesPersonAsync(SalesPersonRequestVM request);
+        Task<SalesPerson?> UpdateSalesPersonAsync(int id, SalesPersonVM personVm);
+
         Task<bool> DeleteAsync(int id);
-        Task<SalesPersonVM?> UpdateSalesPersonAsync(int id, SalesPersonVM person);
     }
 }

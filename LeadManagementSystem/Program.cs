@@ -24,6 +24,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<LeadService>();
 builder.Services.AddScoped<LeadService_>();
 builder.Services.AddTransient<SalesPersonService, SalesPersonServiceImpl>();
+// In Program.cs or Startup.cs
+builder.Services.AddScoped<SalesPersonService, SalesPersonServiceImpl>();
 
 
 // Database: Configure PostgreSQL

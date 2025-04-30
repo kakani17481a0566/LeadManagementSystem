@@ -18,7 +18,6 @@ namespace LeadManagementSystem.ViewModel.Request
         [RegularExpression(@"^[0-9]{10}$", ErrorMessage = "Phone number must contain only digits")]
         public string PhoneNumber { get; set; }
 
-
         [Range(1, 2)]
         public short PaymentType { get; set; }
 

@@ -57,6 +57,7 @@ else
 app.UseHttpsRedirection();
 
 
+app.UseAuthorization(); //test
 
 
 app.UseAuthorization();

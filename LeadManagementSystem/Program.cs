@@ -60,16 +60,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization(); //test
 
 
-app.UseAuthorization();
-
-app.UseAuthorization(); //test
-
-
-app.UseAuthorization(); 
-
-app.UseAuthorization(); 
-
-
 app.MapControllers(); // Register controller endpoint
 
 app.Run();

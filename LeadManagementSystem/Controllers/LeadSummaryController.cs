@@ -250,7 +250,7 @@ namespace LeadManagementSystem.Controllers
             return Ok(leadCountByDay);
         }
 
-        [HttpGet("lead-count-by-source")]
+        [HttpGet("lead-count-by-source-current-year")]
         public async Task<IActionResult> GetLeadCountBySource()
         {
             var result = await _leadService.GetLeadCountBySourceAsync();

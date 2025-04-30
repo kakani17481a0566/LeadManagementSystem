@@ -237,7 +237,7 @@ namespace LeadManagementSystem.Services.Lead
             var currentYear = DateTime.UtcNow.Year;
 
             var result = await _context.leads
-                .Where(l => l.Status.Name == "CONVERTED" && l.DateTime.Year == currentYear)
+                .Where(l => l.Status.Name == "Converted" && l.DateTime.Year == currentYear)
                 .GroupBy(l => l.Branch.BranchName)
                 .Select(g => new LeadCountBySourceAndBranchViewModel
                 {
@@ -379,16 +379,16 @@ namespace LeadManagementSystem.Services.Lead
 
                 switch (item.StatusName)
                 {
-                    case "CONVERTED":
+                    case "Converted":
                         newleadCount.ConvertedCount += item.LeadCount;
                         break;
-                    case "IN PROCESS":
+                    case "InProgress":
                         newleadCount.InProgress += item.LeadCount;
                         break;
                     case "New":
                         newleadCount.NewCount += item.LeadCount;
                         break;
-                    case "NON - CONVERTED":
+                    case "NonConverted":
                         newleadCount.NonConverted += item.LeadCount;
                         break;
 
@@ -419,10 +419,10 @@ namespace LeadManagementSystem.Services.Lead
                 {
                     Day = g.Key.Day,  
                     TotalCount = g.Count(),
-                    ConvertedCount = g.Key.Name == "CONVERTED" ? g.Count() : 0,
-                    InProgress = g.Key.Name == "IN PROCESS" ? g.Count() : 0,
+                    ConvertedCount = g.Key.Name == "Converted" ? g.Count() : 0,
+                    InProgress = g.Key.Name == "InProgress" ? g.Count() : 0,
                     NewCount = g.Key.Name == "New" ? g.Count() : 0,
-                    NonConverted = g.Key.Name == "NON - CONVERTED" ? g.Count() : 0
+                    NonConverted = g.Key.Name == "NonConverted" ? g.Count() : 0
                 })
                 .OrderBy(r => r.Day)
                 .ToListAsync();
@@ -461,7 +461,7 @@ namespace LeadManagementSystem.Services.Lead
                 .Select(g => new LeadCountByBranchModel
                 {
                     BranchName = g.Key.BranchName,
-                    ConvertedCount = g.Count(l => l.Status.Name == "CONVERTED"),  // Count converted leads
+                    ConvertedCount = g.Count(l => l.Status.Name == "Converted"),  // Count converted leads
                     TotalCount = g.Count(),  // Count all leads
                 })
                 .ToListAsync();

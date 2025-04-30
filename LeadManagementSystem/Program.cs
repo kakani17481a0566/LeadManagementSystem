@@ -57,7 +57,7 @@ else
 app.UseHttpsRedirection();
 
 
-app.UseAuthorization(); // Add if using [Authorize]
+app.UseAuthorization();
 
 app.MapControllers(); // Register controller endpoint
 

@@ -21,7 +21,7 @@ namespace LeadManagementSystem.Controllers.User
             _logger = logger;
         }
 
-        // Get all users
+        // GET: api/User
         [HttpGet]
         public async Task<IActionResult> GetUsers()
         {
@@ -36,7 +36,7 @@ namespace LeadManagementSystem.Controllers.User
             return Ok(users);
         }
 
-        // Get user by ID
+        // GET: api/User/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
@@ -51,7 +51,7 @@ namespace LeadManagementSystem.Controllers.User
             return Ok(user);
         }
 
-        // Create a new user
+        // POST: api/User
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] UserCreateViewModel user)
         {
@@ -60,13 +60,11 @@ namespace LeadManagementSystem.Controllers.User
                 return BadRequest("User data is required.");
             }
 
-            // Ensure required fields are present
             if (string.IsNullOrEmpty(user.LoginId) || string.IsNullOrEmpty(user.Password))
             {
                 return BadRequest("LoginId and Password are required.");
             }
 
-            // Optionally, validate that the roleId exists in the database
             var roleExists = await _userService.RoleExistsAsync(user.RoleId);
             if (!roleExists)
             {
@@ -74,8 +72,6 @@ namespace LeadManagementSystem.Controllers.User
             }
 
             _logger.LogInformation("Creating user: {LoginId}", user.LoginId);
-
-            // Call the service to create the user and get the newly created user
             var createdUser = await _userService.CreateUserAsync(user);
 
             if (createdUser == null)
@@ -83,12 +79,26 @@ namespace LeadManagementSystem.Controllers.User
                 return BadRequest("Failed to create user.");
             }
 
-            // Return the newly created user with its auto-generated ID
             return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
         }
 
+        // POST: api/User/login
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromForm] string identifier, [FromForm] string password)
+        {
+            _logger.LogInformation("Attempting login for {Identifier}", identifier);
+            var (isSuccessful, message) = await _userService.LoginAsync(identifier, password);
 
-        // Update an existing user
+            if (isSuccessful)
+            {
+                return Ok(new { success = true, message = message ?? "Login successful." });
+            }
+
+            _logger.LogWarning("Failed login attempt for {Identifier}: {Message}", identifier, message);
+            return Unauthorized(new { success = false, message = message ?? "Invalid credentials." });
+        }
+
+        // PUT: api/User/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UserViewModel user)
         {
@@ -113,7 +123,7 @@ namespace LeadManagementSystem.Controllers.User
             return NoContent();
         }
 
-        // Delete a user
+        // DELETE: api/User/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
@@ -126,25 +136,6 @@ namespace LeadManagementSystem.Controllers.User
             }
 
             return NoContent();
-        }
-
-        // Login user
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromForm] string identifier, [FromForm] string password)
-        {
-            _logger.LogInformation("Attempting login for {Identifier}", identifier);
-
-            var (isSuccessful, message) = await _userService.LoginAsync(identifier, password);
-
-            if (isSuccessful)
-            {
-                return Ok(new { success = true, message = message ?? "Login successful." });
-            }
-
-            // Log failed login attempt
-            _logger.LogWarning("Failed login attempt for {Identifier}: {Message}", identifier, message);
-
-            return Unauthorized(new { success = false, message = message ?? "Invalid credentials." });
         }
     }
 }

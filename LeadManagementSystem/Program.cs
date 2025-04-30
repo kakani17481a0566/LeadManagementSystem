@@ -59,6 +59,7 @@ app.UseHttpsRedirection();
 
 <<<<<<< Updated upstream
 app.UseAuthorization(); //test
+<<<<<<< Updated upstream
 
 
 app.UseAuthorization();
@@ -69,7 +70,10 @@ app.UseAuthorization(); //test
 app.UseAuthorization(); 
 
 =======
+<<<<<<< HEAD
 app.UseAuthorization(); 
+=======
+>>>>>>> 7d03135a59387487619a97080bc8f5fd9eac69fb
 >>>>>>> Stashed changes
 
 app.MapControllers(); // Register controller endpoint

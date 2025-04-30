@@ -243,7 +243,7 @@ namespace LeadManagementSystem.Controllers
             return Ok(leadCountByStatus);
         }
 
-        [HttpGet("lead-count-by-day")]
+        [HttpGet("lead_count_by_day_current_month_current_year")]
         public async Task<IActionResult> GetLeadCountByDay()
         {
             List<LeadCountByDayViewModel> leadCountByDay = await _leadService.GetLeadCountByDayAsync();

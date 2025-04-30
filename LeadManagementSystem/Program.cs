@@ -55,11 +55,10 @@ else
 }
 
 app.UseHttpsRedirection();
-//app.UseCors("AllowSpecificOrigin");
 
 
 app.UseAuthorization(); // Add if using [Authorize]
 
-app.MapControllers(); // Register controller endpoints
+app.MapControllers(); // Register controller endpoint
 
 app.Run();

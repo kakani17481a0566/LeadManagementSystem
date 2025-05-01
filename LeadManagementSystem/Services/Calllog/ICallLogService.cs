@@ -18,5 +18,8 @@ namespace LeadManagementSystem.Services.Calllog
         Task<IEnumerable<dynamic>> GetTotalCallsByDateAsync();   // Get total calls by date
         Task<IEnumerable<dynamic>> GetMonthlyStatsAsync();       // Get monthly aggregated stats
         Task<IEnumerable<dynamic>> GetCallRatioAnalysisAsync();  // Get call ratio analysis
+
+        Task<IEnumerable<dynamic>> GetMonthlyCallRatioAnalysisAsync(); // Get monthly aggregated call ratio analysis
+
     }
 }

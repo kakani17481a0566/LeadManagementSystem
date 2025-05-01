@@ -158,5 +158,24 @@ namespace LeadManagementSystem.Controllers
 
             return Ok(formattedAnalysis);
         }
+
+
+        [HttpGet("call-ratio/monthly")]
+        public async Task<ActionResult<IEnumerable<dynamic>>> GetMonthlyCallRatioAnalysis()
+        {
+            var monthlyCallRatioAnalysis = await _callLogService.GetMonthlyCallRatioAnalysisAsync();
+
+            // Formatting the response if needed (like adding Month Year formatting)
+            var formattedAnalysis = monthlyCallRatioAnalysis.Select(item => new
+            {
+                Month = new DateTime(item.Year, item.Month, 1).ToString("MMMM yyyy", CultureInfo.InvariantCulture), // Format as Month Year (e.g., May 2025)
+                item.IncomingCalls,
+                item.OutgoingCalls,
+                item.CallRatio
+            }).ToList();
+
+            return Ok(formattedAnalysis);
+        }
+
     }
 }

@@ -100,5 +100,22 @@ namespace LeadManagementSystem.Services.Calllog
                 })
                 .ToListAsync();
         }
+
+
+        public async Task<IEnumerable<dynamic>> GetMonthlyCallRatioAnalysisAsync()
+        {
+            return await _context.CallLogs
+                .GroupBy(cl => new { cl.LogDate.Year, cl.LogDate.Month }) // Group by Year and Month
+                .Select(g => new
+                {
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
+                    IncomingCalls = g.Sum(cl => cl.IncomingCalls),
+                    OutgoingCalls = g.Sum(cl => cl.OutgoingCalls),
+                    CallRatio = g.Sum(cl => cl.OutgoingCalls) == 0 ? 0 : (double)g.Sum(cl => cl.IncomingCalls) / g.Sum(cl => cl.OutgoingCalls) // Prevent division by zero
+                })
+                .ToListAsync();
+        }
+
     }
 }

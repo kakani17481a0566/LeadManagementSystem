@@ -4,10 +4,13 @@
     {
         public int Day { get; set; }
         public int TotalCount { get; set; }
-        public int ConvertedCount { get; set; }
-        public int InProgress { get; set; }
-        public int NewCount { get; set; }
-        public int NonConverted { get; set; }
+
+        public int Open { get; set; }
+        public int VisitingSoon { get; set; }
+        public int SchoolVisited { get; set; }
+        public int Closed { get; set; }
+        public int NotInterested { get; set; }
     }
+
 
 }

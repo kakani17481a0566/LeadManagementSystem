@@ -25,6 +25,8 @@ namespace LeadManagementSystem.Data
 
         public DbSet<LeadCountByStatusViewModel> LeadCountByStatusViewModels { get; set; }
 
+        public DbSet<CallLog> CallLogs { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<SalesPerson>(entity =>

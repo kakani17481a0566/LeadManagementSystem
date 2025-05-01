@@ -352,58 +352,56 @@ namespace LeadManagementSystem.Services.Lead
 
             List<LeadCount> LeadCountList = new List<LeadCount>();
             string[] MonthList = { "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" };
-            LeadCount newleadCount = new LeadCount();
 
+            LeadCount newLeadCount = new LeadCount();
             int MonthFlag = 0;
 
             foreach (var item in leadCountByStatusAndMonth)
             {
-                Console.WriteLine(item.Month);
-
                 if (item.Month != MonthFlag)
                 {
-                    if (MonthFlag != 0) { LeadCountList.Add(newleadCount); }
+                    if (MonthFlag != 0)
+                    {
+                        LeadCountList.Add(newLeadCount);
+                    }
 
                     MonthFlag = item.Month;
+                    newLeadCount = new LeadCount
+                    {
+                        Label = MonthList[item.Month - 1]
+                    };
+                }
 
-                    newleadCount = new LeadCount();
-                        newleadCount.Label = MonthList[item.Month-1]  ;
-                        
-                    
-                    
-
-
-                 }
-
-                newleadCount.TotalCount += item.LeadCount; 
+                newLeadCount.TotalCount += item.LeadCount;
 
                 switch (item.StatusName)
                 {
-                    case "Converted":
-                        newleadCount.ConvertedCount += item.LeadCount;
+                    case "Open":
+                        newLeadCount.Open += item.LeadCount;
                         break;
-                    case "InProgress":
-                        newleadCount.InProgress += item.LeadCount;
+                    case "Visiting Soon":
+                        newLeadCount.VisitingSoon += item.LeadCount;
                         break;
-                    case "New":
-                        newleadCount.NewCount += item.LeadCount;
+                    case "School Visited":
+                        newLeadCount.SchoolVisited += item.LeadCount;
                         break;
-                    case "NonConverted":
-                        newleadCount.NonConverted += item.LeadCount;
+                    case "Closed":
+                        newLeadCount.Closed += item.LeadCount;
                         break;
-
+                    case "Not Interested":
+                        newLeadCount.NotInterested += item.LeadCount;
+                        break;
                 }
-
-               
             }
 
-            if (MonthFlag != 0) { LeadCountList.Add(newleadCount); }
-
-
-
+            if (MonthFlag != 0)
+            {
+                LeadCountList.Add(newLeadCount);
+            }
 
             return LeadCountList;
         }
+
 
 
         public async Task<List<LeadCountByDayViewModel>> GetLeadCountByDayAsync()
@@ -413,16 +411,17 @@ namespace LeadManagementSystem.Services.Lead
             var currentYear = currentDate.Year;
 
             var leadCountByDay = await _context.leads
-                .Where(l => l.DateTime.Year == currentYear && l.DateTime.Month == currentMonth)
-                .GroupBy(l => new { l.DateTime.Day, l.Status.Name })
+                .Where(l => l.DateTime.Year == currentYear && l.DateTime.Month == currentMonth - 1)
+                .GroupBy(l => l.DateTime.Day)
                 .Select(g => new LeadCountByDayViewModel
                 {
-                    Day = g.Key.Day,  
+                    Day = g.Key,
                     TotalCount = g.Count(),
-                    ConvertedCount = g.Key.Name == "Converted" ? g.Count() : 0,
-                    InProgress = g.Key.Name == "InProgress" ? g.Count() : 0,
-                    NewCount = g.Key.Name == "New" ? g.Count() : 0,
-                    NonConverted = g.Key.Name == "NonConverted" ? g.Count() : 0
+                    Open = g.Count(l => l.Status.Name == "Open"),
+                    VisitingSoon = g.Count(l => l.Status.Name == "Visiting Soon"),
+                    SchoolVisited = g.Count(l => l.Status.Name == "School Visited"),
+                    Closed = g.Count(l => l.Status.Name == "Closed"),
+                    NotInterested = g.Count(l => l.Status.Name == "Not Interested")
                 })
                 .OrderBy(r => r.Day)
                 .ToListAsync();
@@ -461,7 +460,7 @@ namespace LeadManagementSystem.Services.Lead
                 .Select(g => new LeadCountByBranchModel
                 {
                     BranchName = g.Key.BranchName,
-                    ConvertedCount = g.Count(l => l.Status.Name == "Converted"),  // Count converted leads
+                    ConvertedCount = g.Count(l => l.Status.Name == "Closed"),  // Count converted leads
                     TotalCount = g.Count(),  // Count all leads
                 })
                 .ToListAsync();

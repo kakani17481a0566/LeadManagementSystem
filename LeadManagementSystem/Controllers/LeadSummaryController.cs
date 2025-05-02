@@ -2,9 +2,11 @@
 using LeadManagementSystem.Services.Lead;
 using LeadManagementSystem.ViewModel.Lead;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace LeadManagementSystem.Controllers
 {
@@ -274,6 +276,141 @@ namespace LeadManagementSystem.Controllers
         }
 
 
+        [HttpGet("LeadStats")]
+        public async Task<ActionResult<LeadStats>> GetLeadStats()
+        {
+            LeadStats lesdStats = new LeadStats();
+            lesdStats.yearly = new Period();
+            lesdStats.monthly = new Period();
+            lesdStats.leadTotals = new LeadTotals();
+            lesdStats.MonthlyTotalLeads = new LeadTotals();
+
+
+
+            Series TotalCountseries = new Series();
+            TotalCountseries.Name = "TotalCount";
+            TotalCountseries.Data = new int[12];
+
+
+            Series Closedseries = new Series();
+            Closedseries.Name = "Closed";
+            Closedseries.Data = new int[12];
+
+
+            Series InProcessseries = new Series();
+            InProcessseries.Name = "InProcess";
+            InProcessseries.Data = new int[12];
+
+
+            Series Openseries = new Series();
+            Openseries.Name = "Open";
+            Openseries.Data = new int[12];
+
+            Series Not_Interestedseries = new Series();
+            Not_Interestedseries.Name = "Not_Interested";
+            Not_Interestedseries.Data = new int[12];
+
+
+            List<LeadCount> leadCountByStatus = await _leadService.GetLeadCountByStatusAndMonthAsync();
+
+            if (leadCountByStatus == null || !leadCountByStatus.Any())
+            {
+                return NotFound("No lead stats found for the current year.");
+            }
+
+            List<string> categories = new List<string>();
+            int i = -1;
+            foreach (var item in leadCountByStatus)
+            {
+                TotalCountseries.Data[++i] = item.TotalCount;
+                
+                Closedseries.Data[i] = item.Closed;
+                InProcessseries.Data[i] = item.InProcess;
+                Openseries.Data[i] = item.Open;
+                Not_Interestedseries.Data[i] = item.NotInterested;
+
+                categories.Add(item.Label);
+
+                lesdStats.leadTotals.TotalLeads += item.TotalCount;
+                lesdStats.leadTotals.ConvertedLeads += item.Closed;
+                lesdStats.leadTotals.NonConverted += item.NotInterested;
+                lesdStats.leadTotals.InProcessLeads += item.InProcess;
+
+
+
+            }
+
+            lesdStats.yearly.series.Add(TotalCountseries);
+            lesdStats.yearly.series.Add(Closedseries);
+            lesdStats.yearly.series.Add(InProcessseries);
+            lesdStats.yearly.series.Add(Openseries);
+            lesdStats.yearly.series.Add(Not_Interestedseries);
+            lesdStats.yearly.Categories = categories.ToArray();
+
+
+            //month
+
+
+            TotalCountseries = new Series();
+            TotalCountseries.Name = "TotalCount";
+            TotalCountseries.Data = new int[31];
+
+
+              Closedseries = new Series();
+            Closedseries.Name = "Closed";
+            Closedseries.Data = new int[31];
+
+
+              InProcessseries = new Series();
+            InProcessseries.Name = "InProcess";
+            InProcessseries.Data = new int[31];
+
+
+              Openseries = new Series();
+            Openseries.Name = "Open";
+            Openseries.Data = new int[31];
+
+              Not_Interestedseries = new Series();
+            Not_Interestedseries.Name = "Not_Interested";
+            Not_Interestedseries.Data = new int[31];
+
+            List<LeadCountByDayViewModel> leadCountByDay = await _leadService.GetLeadCountByDayAsync();
+
+
+             categories = new List<string>();
+              i = -1;
+            foreach (var item in leadCountByDay)
+            {
+                TotalCountseries.Data[++i] = item.TotalCount;
+                Closedseries.Data[i] = item.Closed;
+                InProcessseries.Data[i] = item.InProcess;
+                Openseries.Data[i] = item.Open;
+                Not_Interestedseries.Data[i] = item.NotInterested;
+
+                categories.Add(item.Day.ToString());
+
+                lesdStats.MonthlyTotalLeads.TotalLeads += item.TotalCount;
+                lesdStats.MonthlyTotalLeads.ConvertedLeads += item.Closed;
+                lesdStats.MonthlyTotalLeads.NonConverted += item.NotInterested;
+                lesdStats.MonthlyTotalLeads.InProcessLeads += item.InProcess;
+
+            }
+
+            lesdStats.monthly.series.Add(TotalCountseries);
+            lesdStats.monthly.series.Add(Closedseries);
+            lesdStats.monthly.series.Add(InProcessseries);
+            lesdStats.monthly.series.Add(Openseries);
+            lesdStats.monthly.series.Add(Not_Interestedseries);
+            lesdStats.monthly.Categories = categories.ToArray();
+            
+
+
+
+
+
+
+            return Ok(lesdStats);
+        }
 
 
 

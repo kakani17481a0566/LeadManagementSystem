@@ -35,6 +35,15 @@ builder.Services.AddTransient<SalesPersonService, SalesPersonServiceImpl>();
 
 // Logging
 builder.Services.AddLogging();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000") 
+               .AllowAnyHeader()
+               .AllowAnyMethod();
+    }); 
+}); 
 
 var app = builder.Build();
 
@@ -54,5 +63,6 @@ else
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+app.UseCors("AllowFrontend"); 
 
 app.Run();

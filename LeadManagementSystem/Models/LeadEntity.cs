@@ -46,6 +46,10 @@ namespace LeadManagementSystem.Models
         [Column("school_id")]  // Foreign key to school
         public int SchoolId { get; set; }
 
+
+        //[Column("is_converted")]
+        //public Boolean IsConverted { get; set; }
+
         // --- Navigation Properties ---
         public LeadType LeadType { get; set; }         // Navigation property for LeadType
         public Source LeadSource { get; set; }         // Navigation property for LeadSource

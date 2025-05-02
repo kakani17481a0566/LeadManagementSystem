@@ -10,6 +10,9 @@
         public int SchoolVisited { get; set; }
         public int Closed { get; set; }
         public int NotInterested { get; set; }
+
+        public int InProcess { get; set; }
+
     }
 
 

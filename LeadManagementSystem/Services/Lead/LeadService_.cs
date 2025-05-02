@@ -381,6 +381,7 @@ namespace LeadManagementSystem.Services.Lead
                         break;
                     case "Visiting Soon":
                         newLeadCount.VisitingSoon += item.LeadCount;
+                         
                         break;
                     case "School Visited":
                         newLeadCount.SchoolVisited += item.LeadCount;
@@ -390,6 +391,14 @@ namespace LeadManagementSystem.Services.Lead
                         break;
                     case "Not Interested":
                         newLeadCount.NotInterested += item.LeadCount;
+                        break;
+                    
+
+                    case "Converted":
+                        newLeadCount.Converted += item.LeadCount;
+                        break;
+                    case "InProcess":
+                        newLeadCount.InProcess += item.LeadCount;
                         break;
                 }
             }
@@ -421,7 +430,9 @@ namespace LeadManagementSystem.Services.Lead
                     VisitingSoon = g.Count(l => l.Status.Name == "Visiting Soon"),
                     SchoolVisited = g.Count(l => l.Status.Name == "School Visited"),
                     Closed = g.Count(l => l.Status.Name == "Closed"),
-                    NotInterested = g.Count(l => l.Status.Name == "Not Interested")
+                    NotInterested = g.Count(l => l.Status.Name == "Not Interested"),
+                    InProcess = g.Count(l =>      l.Status.Name == "InProcess" ),
+                     
                 })
                 .OrderBy(r => r.Day)
                 .ToListAsync();

@@ -267,7 +267,8 @@ namespace LeadManagementSystem.Controllers
 
             if (leadCountByBranch == null || leadCountByBranch.Count == 0)
             {
-                return NotFound("No data found for lead count by branch.");
+                // Return empty list instead of 404 for dashboard compatibility
+                return Ok(new List<LeadCountByBranchModel>());
             }
 
             return Ok(leadCountByBranch);
@@ -277,7 +278,98 @@ namespace LeadManagementSystem.Controllers
 
 
 
+        // GET: api/LeadSummary/LeadStats
+        [HttpGet("LeadStats")]
+        public async Task<ActionResult<LeadStatsViewModel>> GetLeadStats()
+        {
+            try
+            {
+                // 1. Get Yearly Data (LeadCount list has months)
+                var yearlyData = await _leadService.GetLeadCountByStatusAndMonthAsync();
+                
+                // 2. Get Monthly Data (Daily breakdown)
+                var monthlyData = await _leadService.GetLeadCountByDayAsync();
 
+                // 3. Construct LeadTotals (Aggregate from Yearly Data which covers current year)
+                var totals = new LeadTotalsViewModel();
+                if (yearlyData != null)
+                {
+                    foreach (var item in yearlyData)
+                    {
+                        totals.TotalLeads += item.TotalCount;
+                        totals.ConvertedLeads += item.ConvertedCount;
+                        totals.InProcessLeads += item.InProgress; // Assuming New is separate or included? Frontend says "Processing"
+                        totals.NonConverted += item.NonConverted;
+                    }
+                    // Note: Check if 'New' counts should be added to InProcess or shown separately. 
+                    // Frontend has "Processing" card. yearlyData has InProgress and New.
+                    // Let's add 'New' to 'InProcessLeads' to match frontend "Inprocess" series logic if needed, 
+                    // but looking at Overview.jsx series: "Inprogress" is one series.
+                    // LeadCount.InProgress is likely what matches.
+                }
+
+                // 4. Construct Yearly Chart Data
+                var yearlyChart = new ChartDataViewModel
+                {
+                    Categories = new List<object>(),
+                    Series = new List<SeriesData>
+                    {
+                        new SeriesData { Name = "Leads", Data = new List<int>() },
+                        new SeriesData { Name = "Inprogress", Data = new List<int>() },
+                        new SeriesData { Name = "Converted", Data = new List<int>() },
+                        new SeriesData { Name = "Closed", Data = new List<int>() }
+                    }
+                };
+
+                if (yearlyData != null && yearlyData.Count > 0)
+                {
+                    foreach (var item in yearlyData)
+                    {
+                        yearlyChart.Categories.Add(item.Label); // "JAN", "FEB" etc.
+                        yearlyChart.Series[0].Data.Add(item.TotalCount);
+                        yearlyChart.Series[1].Data.Add(item.InProgress);
+                        yearlyChart.Series[2].Data.Add(item.ConvertedCount);
+                        yearlyChart.Series[3].Data.Add(item.NonConverted);
+                    }
+                }
+
+                // 5. Construct Monthly Chart Data
+                var monthlyChart = new ChartDataViewModel
+                {
+                    Categories = new List<object>(),
+                    Series = new List<SeriesData>
+                    {
+                        new SeriesData { Name = "Leads", Data = new List<int>() },
+                        new SeriesData { Name = "Inprogress ", Data = new List<int>() }, // Note space in name matches frontend
+                        new SeriesData { Name = "Converted", Data = new List<int>() },
+                        new SeriesData { Name = "Closed", Data = new List<int>() }
+                    }
+                };
+
+                if (monthlyData != null && monthlyData.Count > 0)
+                {
+                    foreach (var item in monthlyData)
+                    {
+                        monthlyChart.Categories.Add(item.Day);
+                        monthlyChart.Series[0].Data.Add(item.TotalCount);
+                        monthlyChart.Series[1].Data.Add(item.InProgress); // Add NewCount here if needed?
+                        monthlyChart.Series[2].Data.Add(item.ConvertedCount);
+                        monthlyChart.Series[3].Data.Add(item.NonConverted);
+                    }
+                }
+
+                return Ok(new LeadStatsViewModel
+                {
+                    LeadTotals = totals,
+                    Yearly = yearlyChart,
+                    Monthly = monthlyChart
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching LeadStats");
+                return StatusCode(500, "Internal server error");
+            }
+        }
     }
-
 }

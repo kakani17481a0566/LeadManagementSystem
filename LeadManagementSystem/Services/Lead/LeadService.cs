@@ -31,6 +31,7 @@ namespace LeadManagementSystem.Services.Lead
                 .Include(l => l.Owner)
                 .Include(l => l.Branch)
                 .Include(l => l.School)
+                .OrderByDescending(l => l.Id)
                 .ToListAsync();
 
             var leadVMs = leads.Select(l => new LeadVM

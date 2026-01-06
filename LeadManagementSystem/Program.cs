@@ -21,6 +21,7 @@ builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddCors();
 builder.Services.AddScoped<LeadService>();
 builder.Services.AddScoped<LeadService_>();
 builder.Services.AddTransient<SalesPersonService, SalesPersonServiceImpl>();
@@ -47,6 +48,13 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage(); // Detailed exception page in development
     app.UseSwagger();
     app.UseSwaggerUI();
+    
+    // Allow CORS for local frontend
+    app.UseCors(builder => builder
+        .WithOrigins("http://localhost:5173")
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials());
 }
 else
 {
@@ -56,6 +64,20 @@ else
 
 app.UseHttpsRedirection();
 
+// Invoke Data Seeder
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        DataSeeder.Initialize(services);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred seeding the DB.");
+    }
+}
 
 app.UseAuthorization(); //test
 

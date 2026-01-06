@@ -280,15 +280,15 @@ namespace LeadManagementSystem.Controllers
 
         // GET: api/LeadSummary/LeadStats
         [HttpGet("LeadStats")]
-        public async Task<ActionResult<LeadStatsViewModel>> GetLeadStats()
+        public async Task<ActionResult<LeadStatsViewModel>> GetLeadStats([FromQuery] int? year = null, [FromQuery] int? month = null)
         {
             try
             {
                 // 1. Get Yearly Data (LeadCount list has months)
-                var yearlyData = await _leadService.GetLeadCountByStatusAndMonthAsync();
+                var yearlyData = await _leadService.GetLeadCountByStatusAndMonthAsync(year);
                 
                 // 2. Get Monthly Data (Daily breakdown)
-                var monthlyData = await _leadService.GetLeadCountByDayAsync();
+                var monthlyData = await _leadService.GetLeadCountByDayAsync(year, month);
 
                 // 3. Construct LeadTotals (Aggregate from Yearly Data which covers current year)
                 var totals = new LeadTotalsViewModel();

@@ -327,9 +327,9 @@ namespace LeadManagementSystem.Services.Lead
         }
 
 
-        public async Task<List<LeadCount>> GetLeadCountByStatusAndMonthAsync()
+        public async Task<List<LeadCount>> GetLeadCountByStatusAndMonthAsync(int? year = null)
         {
-            var currentYear = DateTime.UtcNow.Year;
+            var currentYear = year ?? DateTime.UtcNow.Year;
 
             var leadCountByStatusAndMonth = await _context.leads
                 .Where(l => l.DateTime.Year == currentYear)
@@ -406,11 +406,11 @@ namespace LeadManagementSystem.Services.Lead
         }
 
 
-        public async Task<List<LeadCountByDayViewModel>> GetLeadCountByDayAsync()
+        public async Task<List<LeadCountByDayViewModel>> GetLeadCountByDayAsync(int? year = null, int? month = null)
         {
             var currentDate = DateTime.UtcNow;
-            var currentMonth = currentDate.Month;
-            var currentYear = currentDate.Year;
+            var currentMonth = month ?? currentDate.Month;
+            var currentYear = year ?? currentDate.Year;
 
             var leadCountByDay = await _context.leads
                 .Where(l => l.DateTime.Year == currentYear && l.DateTime.Month == currentMonth)

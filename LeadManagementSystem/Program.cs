@@ -51,7 +51,7 @@ if (app.Environment.IsDevelopment())
     
     // Allow CORS for local frontend
     app.UseCors(builder => builder
-        .WithOrigins("http://localhost:5173")
+        .WithOrigins("http://localhost:5173", "https://lead-mgmt-msi-kakani-2025.azurewebsites.net") // Add production frontend URL here if separate, otherwise allow all or specific
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials());
@@ -60,6 +60,12 @@ else
 {
     app.UseExceptionHandler("/Home/Error"); // Global error handler
     app.UseHsts(); // Use HTTP Strict Transport Security in production
+
+    // Enable CORS for Production as well (Adjust origins as needed)
+     app.UseCors(builder => builder
+        .AllowAnyOrigin() // For now, allow all to ensure connectivity. Ideal: specific origins.
+        .AllowAnyMethod()
+        .AllowAnyHeader());
 }
 
 app.UseHttpsRedirection();

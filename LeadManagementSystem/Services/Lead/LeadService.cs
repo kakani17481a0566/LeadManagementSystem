@@ -36,6 +36,7 @@ namespace LeadManagementSystem.Services.Lead
 
             var leadVMs = leads.Select(l => new LeadVM
             {
+                Id = l.Id,
                 LeadName = l.Name,
                 ContactNumber = l.ContactNumber,
                 LeadSourceId = l.LeadSourceId,
@@ -80,6 +81,7 @@ namespace LeadManagementSystem.Services.Lead
 
             var leadVM = new LeadVM
             {
+                Id = lead.Id,
                 LeadName = lead.Name,
                 ContactNumber = lead.ContactNumber,
                 LeadSourceId = lead.LeadSourceId,

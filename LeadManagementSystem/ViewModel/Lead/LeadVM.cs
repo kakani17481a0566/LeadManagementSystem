@@ -2,6 +2,7 @@
 {
     public class LeadVM
     {
+        public int Id { get; set; }
         public string LeadName { get; set; }
         public string ContactNumber { get; set; }
         public int LeadSourceId { get; set; }

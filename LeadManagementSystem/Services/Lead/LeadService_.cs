@@ -466,16 +466,32 @@ namespace LeadManagementSystem.Services.Lead
         {
             var currentYear = DateTime.UtcNow.Year;
 
-            var result = await _context.leads
+            // 1. Get all sources
+            var allSources = await _context.sources.ToListAsync();
+
+            // 2. Get Lead counts grouped by Source for current year
+            var leadCountsGrouped = await _context.leads
                 .Where(l => l.DateTime.Year == currentYear)
-                .GroupBy(l => l.LeadSource.Name)
-                .Select(g => new LeadCountBySourceViewModel
+                .GroupBy(l => l.LeadSourceId)
+                .Select(g => new
                 {
-                    SourceName = g.Key,
-                    TotalLeads = g.Count()
+                    SourceId = g.Key,
+                    Count = g.Count()
                 })
-                .OrderBy(x => x.SourceName)
                 .ToListAsync();
+
+            // 3. Left Join
+            var result = allSources.Select(source =>
+            {
+                var stats = leadCountsGrouped.FirstOrDefault(x => x.SourceId == source.Id);
+                return new LeadCountBySourceViewModel
+                {
+                    SourceName = source.Name,
+                    TotalLeads = stats?.Count ?? 0
+                };
+            })
+            .OrderBy(x => x.SourceName)
+            .ToList();
 
             return result;
         }
@@ -485,32 +501,42 @@ namespace LeadManagementSystem.Services.Lead
         {
             var currentYear = DateTime.UtcNow.Year;
 
-            var leadCounts = await _context.leads
-                .Where(l => l.DateTime.Year == currentYear)  // Filter by the current year using Year property
-                .GroupBy(l => new { l.Branch.BranchName, l.BranchId })  // Group by branch
-                .Select(g => new LeadCountByBranchModel
+            // 1. Get all branches
+            var allBranches = await _context.branches.ToListAsync();
+
+            // 2. Get Lead Counts grouped by Branch for current year
+            var leadCountsGrouped = await _context.leads
+                .Where(l => l.DateTime.Year == currentYear)
+                .GroupBy(l => l.BranchId)
+                .Select(g => new
                 {
-                    BranchName = g.Key.BranchName,
-                    ConvertedCount = g.Count(l => l.Status.Name == "Converted"),  // Count converted leads
-                    TotalCount = g.Count(),  // Count all leads
+                    BranchId = g.Key,
+                    TotalCount = g.Count(),
+                    ConvertedCount = g.Count(l => l.Status.Name == "Converted") // Note: Use Status name check if IsConverted is not reliable in DB or for consistency
                 })
                 .ToListAsync();
 
-            // Calculate Success Percentage
-            foreach (var item in leadCounts)
+            // 3. Left Join in memory
+            var result = allBranches.Select(branch =>
             {
-                if (item.TotalCount > 0)
-                {
-                    item.SuccessPercentage = Math.Round((item.ConvertedCount * 100.0) / item.TotalCount, 2);
+                var stats = leadCountsGrouped.FirstOrDefault(x => x.BranchId == branch.Id);
+                var totalCount = stats?.TotalCount ?? 0;
+                var convertedCount = stats?.ConvertedCount ?? 0;
 
-                }
-                else
+                return new LeadCountByBranchModel
                 {
-                    item.SuccessPercentage = 0;
-                }
-            }
+                    BranchName = branch.BranchName,
+                    ConvertedCount = convertedCount,
+                    TotalCount = totalCount,
+                    SuccessPercentage = totalCount > 0 
+                        ? Math.Round((convertedCount * 100.0) / totalCount, 2) 
+                        : 0
+                };
+            })
+            .OrderBy(x => x.BranchName)
+            .ToList();
 
-            return leadCounts.OrderBy(x => x.BranchName).ToList();  // Sort by branch name
+            return result;
         }
 
 

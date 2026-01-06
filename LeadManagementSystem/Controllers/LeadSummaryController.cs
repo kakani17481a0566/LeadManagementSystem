@@ -298,7 +298,7 @@ namespace LeadManagementSystem.Controllers
                     {
                         totals.TotalLeads += item.TotalCount;
                         totals.ConvertedLeads += item.ConvertedCount;
-                        totals.InProcessLeads += item.InProgress; // Assuming New is separate or included? Frontend says "Processing"
+                        totals.InProcessLeads += item.InProgress + item.NewCount; 
                         totals.NonConverted += item.NonConverted;
                     }
                     // Note: Check if 'New' counts should be added to InProcess or shown separately. 
@@ -327,7 +327,7 @@ namespace LeadManagementSystem.Controllers
                     {
                         yearlyChart.Categories.Add(item.Label); // "JAN", "FEB" etc.
                         yearlyChart.Series[0].Data.Add(item.TotalCount);
-                        yearlyChart.Series[1].Data.Add(item.InProgress);
+                        yearlyChart.Series[1].Data.Add(item.InProgress + item.NewCount);
                         yearlyChart.Series[2].Data.Add(item.ConvertedCount);
                         yearlyChart.Series[3].Data.Add(item.NonConverted);
                     }
@@ -352,7 +352,7 @@ namespace LeadManagementSystem.Controllers
                     {
                         monthlyChart.Categories.Add(item.Day);
                         monthlyChart.Series[0].Data.Add(item.TotalCount);
-                        monthlyChart.Series[1].Data.Add(item.InProgress); // Add NewCount here if needed?
+                        monthlyChart.Series[1].Data.Add(item.InProgress + item.NewCount);
                         monthlyChart.Series[2].Data.Add(item.ConvertedCount);
                         monthlyChart.Series[3].Data.Add(item.NonConverted);
                     }

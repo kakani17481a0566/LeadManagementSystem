@@ -336,12 +336,14 @@ namespace LeadManagementSystem.Services.Lead
                 .GroupBy(l => new
                 {
                     l.Status.Name,
+                    l.Converted,
                     Month = l.DateTime.Month,
                     Year = l.DateTime.Year
                 })
                 .Select(g => new LeadCountByStatusViewModel
                 {
                     StatusName = g.Key.Name,
+                    IsConverted = g.Key.Converted,
                     Month = g.Key.Month,
                     Year = g.Key.Year,
                     LeadCount = g.Count()
@@ -358,8 +360,6 @@ namespace LeadManagementSystem.Services.Lead
 
             foreach (var item in leadCountByStatusAndMonth)
             {
-                Console.WriteLine(item.Month);
-
                 if (item.Month != MonthFlag)
                 {
                     if (MonthFlag != 0) { LeadCountList.Add(newleadCount); }
@@ -367,34 +367,52 @@ namespace LeadManagementSystem.Services.Lead
                     MonthFlag = item.Month;
 
                     newleadCount = new LeadCount();
-                        newleadCount.Label = MonthList[item.Month-1]  ;
-                        
-                    
-                    
-
-
-                 }
+                    if (item.Month >= 1 && item.Month <= 12)
+                    {
+                        newleadCount.Label = MonthList[item.Month - 1];
+                    }
+                    else
+                    {
+                        newleadCount.Label = "UNK";
+                    }
+                }
 
                 newleadCount.TotalCount += item.LeadCount; 
 
-                switch (item.StatusName)
+                var status = item.StatusName?.Trim();
+                
+                // Handle explicit "Converted" flag priority if needed, or stick to status logic
+                if (item.IsConverted)
                 {
-                    case "Converted":
-                        newleadCount.ConvertedCount += item.LeadCount;
-                        break;
-                    case "InProgress":
-                        newleadCount.InProgress += item.LeadCount;
-                        break;
-                    case "New":
-                        newleadCount.NewCount += item.LeadCount;
-                        break;
-                    case "NonConverted":
-                        newleadCount.NonConverted += item.LeadCount;
-                        break;
-
+                     newleadCount.ConvertedCount += item.LeadCount;
                 }
-
-               
+                else 
+                {
+                     // Non-converted logic based on status name
+                     if (string.Equals(status, "New", StringComparison.OrdinalIgnoreCase) || 
+                         string.Equals(status, "Open", StringComparison.OrdinalIgnoreCase))
+                     {
+                         newleadCount.NewCount += item.LeadCount;
+                     }
+                     else if (string.Equals(status, "InProgress", StringComparison.OrdinalIgnoreCase) || 
+                              string.Equals(status, "InProcess", StringComparison.OrdinalIgnoreCase) ||
+                              string.Equals(status, "Visiting Soon", StringComparison.OrdinalIgnoreCase) ||
+                              string.Equals(status, "School Visited", StringComparison.OrdinalIgnoreCase))
+                     {
+                         newleadCount.InProgress += item.LeadCount;
+                     }
+                     else if (string.Equals(status, "NonConverted", StringComparison.OrdinalIgnoreCase) || 
+                              string.Equals(status, "Not Interested", StringComparison.OrdinalIgnoreCase) ||
+                              string.Equals(status, "Waste Lead", StringComparison.OrdinalIgnoreCase))
+                     {
+                         newleadCount.NonConverted += item.LeadCount;
+                     }
+                     else if (string.Equals(status, "Closed", StringComparison.OrdinalIgnoreCase)) 
+                     {
+                         // Closed but IsConverted is false -> Likely Lost/NonConverted
+                         newleadCount.NonConverted += item.LeadCount;
+                     }
+                }
             }
 
             if (MonthFlag != 0) { LeadCountList.Add(newleadCount); }
@@ -412,20 +430,32 @@ namespace LeadManagementSystem.Services.Lead
             var currentMonth = month ?? currentDate.Month;
             var currentYear = year ?? currentDate.Year;
 
-            var leadCountByDay = await _context.leads
+            // 1. Fetch raw flattened data
+            var rawData = await _context.leads
                 .Where(l => l.DateTime.Year == currentYear && l.DateTime.Month == currentMonth)
-                .GroupBy(l => new { l.DateTime.Day, l.Status.Name })
+                .GroupBy(l => new { l.DateTime.Day, StatusName = l.Status != null ? l.Status.Name : "Unknown" })
+                .Select(g => new
+                {
+                    Day = g.Key.Day,
+                    StatusName = g.Key.StatusName,
+                    Count = g.Count()
+                })
+                .ToListAsync();
+
+            // 2. Aggregate in memory to ensure one record per day
+            var leadCountByDay = rawData
+                .GroupBy(x => x.Day)
                 .Select(g => new LeadCountByDayViewModel
                 {
-                    Day = g.Key.Day,  
-                    TotalCount = g.Count(),
-                    ConvertedCount = g.Key.Name == "Converted" ? g.Count() : 0,
-                    InProgress = g.Key.Name == "InProgress" ? g.Count() : 0,
-                    NewCount = g.Key.Name == "New" ? g.Count() : 0,
-                    NonConverted = g.Key.Name == "NonConverted" ? g.Count() : 0
+                    Day = g.Key,
+                    TotalCount = g.Sum(x => x.Count),
+                    ConvertedCount = g.Where(x => x.StatusName == "Converted").Sum(x => x.Count),
+                    InProgress = g.Where(x => x.StatusName == "InProgress").Sum(x => x.Count),
+                    NewCount = g.Where(x => x.StatusName == "New").Sum(x => x.Count),
+                    NonConverted = g.Where(x => x.StatusName == "NonConverted").Sum(x => x.Count)
                 })
                 .OrderBy(r => r.Day)
-                .ToListAsync();
+                .ToList();
 
             return leadCountByDay;
         }
